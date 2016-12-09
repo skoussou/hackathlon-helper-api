@@ -84,6 +84,18 @@ import io.undertow.client.ClientRequest;
 @Path("/")
 public class HackathlonAPIResource {
 
+	private static final String API_PAYLOAD = "{  \n"+  
+   "\tteamName\":\" ,\n"+
+   "\tteamsContentsList\":[\n"+  
+   "\t\t   {\n"+  
+       "\t\t\t \"reindeerName\":\" \",\n"+
+       "\t\t\t \"nameEmaiMap\":{\n"+  
+            "\t\t\t\t \" \":\" \" \n"+
+    "\t\t\t     }\n"+
+    "\t\t  }\n"+
+   "\t]\n"+
+   "};\b";
+	
 	private static LinkedList<String> serviceRoutes = new LinkedList<String>(Arrays.asList("http://santas-helpers-a-team.router.default.svc.cluster.local",
             "http://santas-helpers-b-team.router.default.svc.cluster.local",
             "http://santas-helpers-c-team.router.default.svc.cluster.local",
@@ -170,10 +182,24 @@ public class HackathlonAPIResource {
     @Produces("application/json")
     @ApiOperation("Returns the greeting in Spanish")
     public String info() {
-        String info = "Here there will be some information around the hackathlon";
-        System.out.println("\n\n ===========================================");
-        System.out.println("     EMEA ARCHITECTS HATCKATHLON INFORMATION ");
-        System.out.println("\n===========================================");
+        
+        String info = "\n\n ==========================================="
+        +"     EMEA ARCHITECTS HATCKATHLON INFORMATION "
+        +"============================================"
+        +"API PAYLOAD"
+        +"-----------------------"
+        +API_PAYLOAD
+        +"===========================================";
+        
+        System.out.println(info);
+        
+//        System.out.println("\n\n ===========================================");
+//        System.out.println("     EMEA ARCHITECTS HATCKATHLON INFORMATION ");
+//        System.out.println("============================================");
+//        System.out.println("API PAYLOAD");
+//        System.out.println("-----------------------");
+//        System.out.println(API_PAYLOAD);
+//        System.out.println("===========================================");
         return info;
     }
     
