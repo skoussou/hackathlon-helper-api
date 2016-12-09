@@ -1,5 +1,5 @@
-# hola
-hola microservice using Java EE (JAX-RS) on WildFly Swarm
+# Hackathlon Helper API
+helper-api microservice using Java EE (JAX-RS) on WildFly Swarm
 
 The detailed instructions to run *Red Hat Helloworld MSA* demo, can be found at the following repository: <https://github.com/redhat-helloworld-msa/helloworld-msa>
 
@@ -13,7 +13,8 @@ Build and Deploy hola locally
         mvn wildfly-swarm:run
 
 3. This will create a uber jar at  `target/hola-swarm.jar` and execute it.
-4. The application will be running at the following URL: <http://localhost:8080/api/hola>
+4. The application will be running at the following URL: <http://localhost:8080/api>
+5. To see the APIs go to the following URL: <http://localhost:8080/api/swagger.json>
 
 Deploy the application in Openshift
 -----------------------------------
