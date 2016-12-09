@@ -209,7 +209,7 @@ public class HackathlonAPIResource {
     	}
     	if (reindeersIt.hasNext()){
     		nextReindeer = reindeersIt.next().getReindeerName();
-    		if (reindeer.compareToIgnoreCase(nextReindeer) > ZERO) {
+    		if (reindeer != null && reindeer.compareToIgnoreCase(nextReindeer) > ZERO) {
     			return false;
     		}
     	}
