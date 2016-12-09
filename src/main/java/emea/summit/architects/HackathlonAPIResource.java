@@ -208,7 +208,7 @@ public class HackathlonAPIResource {
     public String info() {
         
         String info = "\n\n ==========================================="
-        +"     EMEA ARCHITECTS HATCKATHLON INFORMATION "
+        +"\n\n     EMEA ARCHITECTS HATCKATHLON INFORMATION "
         +"============================================"
         +"API PAYLOAD"
         +"-----------------------"
