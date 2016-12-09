@@ -57,6 +57,16 @@ public class RequestPayload {
 	public void setNameEmaiMap(HashMap<String, String> nameEmaiMap) {
 		this.nameEmaiMap = nameEmaiMap;
 	}
+	
+	
+
+	@Override
+	public String toString() {
+		return "RequestPayload [teamName=" + teamName + ", reindeerName=" + reindeerName + ", nameEmaiMap="
+				+ nameEmaiMap + "]";
+	}
+
+
 
 	private class TeamContent {
 		private String reindeerName;

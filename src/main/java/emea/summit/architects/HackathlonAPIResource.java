@@ -189,16 +189,18 @@ public class HackathlonAPIResource {
     @Path("/service/validate")
     @Consumes("application/json")
     @ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
-    public String validate(String jsonRequest) {
+//    public String validate(String jsonRequest) {
+    public String validate(List<RequestPayload> jsonRequest) {
 
-    	ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
-    	RequestPayload requestContent = null;
-        try {
-        	requestContent = mapper.readValue(jsonRequest, RequestPayload.class );
-        } catch (IOException e) {
-                 System.out.println("Request was invalid cause: "+e.getMessage());
-                 return "Request was invalid cause: "+e.getMessage();
-        }
+    	System.out.println("Request Object ---->" +jsonRequest.toString());
+//    	ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
+//    	RequestPayload requestContent = null;
+//        try {
+//        	requestContent = mapper.readValue(jsonRequest, RequestPayload.class );
+//        } catch (IOException e) {
+//                 System.out.println("Request was invalid cause: "+e.getMessage());
+//                 return "Request was invalid cause: "+e.getMessage();
+//        }
         
         // TODO - Check for ordering
         
