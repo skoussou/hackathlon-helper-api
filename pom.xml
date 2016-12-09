@@ -85,6 +85,10 @@
 		<fabric8.readinessProbe.httpGet.port>8080</fabric8.readinessProbe.httpGet.port>
 		<fabric8.readinessProbe.initialDelaySeconds>5</fabric8.readinessProbe.initialDelaySeconds>
 		<fabric8.readinessProbe.timeoutSeconds>30</fabric8.readinessProbe.timeoutSeconds>
+
+
+        <version.jboss.bom.eap>6.4.0.GA</version.jboss.bom.eap>
+		
 	</properties>
 
 
@@ -108,11 +112,19 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			
+        <dependency>
+            <groupId>org.jboss.bom.eap</groupId>
+            <artifactId>jboss-javaee-6.0-with-resteasy</artifactId>
+                <version>${version.jboss.bom.eap}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>			
 		</dependencies>
 	</dependencyManagement>
 
 	<dependencies>
-	    <!--  Adding for EMAIL Notification -->
+		<!-- Adding for EMAIL Notification -->
 		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
@@ -124,6 +136,21 @@
 			<artifactId>javax.mail-api</artifactId>
 			<version>1.5.5</version>
 		</dependency>
+
+
+		<!-- Adding for Service to Service REST Call 
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jackson-provider</artifactId>
+			<scope>compile</scope>
+		</dependency>-->
+
 
 
 		<dependency>
