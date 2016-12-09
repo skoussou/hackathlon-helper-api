@@ -15,6 +15,10 @@ public class RequestPayload {
 	private String reindeerName;
 	private HashMap<String, String> nameToEmail;
 
+	public RequestPayload() {
+		
+	}
+	
 	public RequestPayload(String teamName, List<TeamContent> listOfContents) {
 		super();
 		this.teamName = teamName;

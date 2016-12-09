@@ -135,24 +135,9 @@ public class HackathlonAPIResource {
 
     @Context
     private HttpServletRequest servletRequest;
-
-    private String getNextServiceRouteURL(String currentService) {
-    	Iterator<String> routeIterator = serviceRoutes.iterator();
-    	while (routeIterator.hasNext()) {
-    		String svcURL = routeIterator.next();
-    		if(currentService.equalsIgnoreCase(svcURL)) {
-    			System.out.println("Match Found on SVC --> "+currentService);
-    			svcURL = routeIterator.next();
-    			System.out.println("RETURNED Next Service --> "+svcURL);
-    			return svcURL;
-    		}
-    		System.out.println("Next Service --> "+svcURL);
-    	}
-    	return null;
-    }
     
     @POST
-    @Path("/hackathlon/next-service")
+    @Path("/next-service")
     @Consumes("application/json")
     @Produces("application/json")
     @ApiOperation("Returns the URL of the next MSA in the teams of Santa Helpers to be used to communicate with")
@@ -204,7 +189,6 @@ public class HackathlonAPIResource {
     @Path("/service/validate")
     @Consumes("application/json")
     @ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
-    //	public Response createProductInJSON(Product product) {          
     public String validate(String jsonRequest) {
 
     	ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
@@ -223,7 +207,7 @@ public class HackathlonAPIResource {
 
     
     @GET
-    @Path("/hackathlon/info")
+    @Path("/info")
     @Produces("application/json")
     @ApiOperation("Returns the greeting in Spanish")
     public String info() {
@@ -251,11 +235,10 @@ public class HackathlonAPIResource {
     }
     
     @POST
-    @Path("/hackathlon/other-service")
+    @Path("/other-service")
     @Consumes("application/json")
     @Produces("application/json")
     @ApiOperation("Call service to service")
-    //public String callOtherService(String httpMethod, String serviceURL, String data) {
     public String callOtherService(String jsonRequest) {
     	
     	ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
@@ -324,6 +307,21 @@ public class HackathlonAPIResource {
    		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
    		System.out.println("****************************************************************");
 		return result;
+    }
+    
+    private String getNextServiceRouteURL(String currentService) {
+    	Iterator<String> routeIterator = serviceRoutes.iterator();
+    	while (routeIterator.hasNext()) {
+    		String svcURL = routeIterator.next();
+    		if(currentService.equalsIgnoreCase(svcURL)) {
+    			System.out.println("Match Found on SVC --> "+currentService);
+    			svcURL = routeIterator.next();
+    			System.out.println("RETURNED Next Service --> "+svcURL);
+    			return svcURL;
+    		}
+    		System.out.println("Next Service --> "+svcURL);
+    	}
+    	return null;
     }
     
     
