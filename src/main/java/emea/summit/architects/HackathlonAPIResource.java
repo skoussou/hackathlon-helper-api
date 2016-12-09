@@ -102,7 +102,7 @@ public class HackathlonAPIResource {
 		"		   \"teamsContentsList\":[\n"+  
 		"		      {\n"+  
 		"		         \"reindeerName\":\"blixen\",\n"+
-		"		         \"nameToEmail\":{\n"+  
+		"		         \"nameEmaiMap\":{\n"+  
 		"		            \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
 		"		            \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
 		"		         }\n"+

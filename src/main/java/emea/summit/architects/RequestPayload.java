@@ -10,10 +10,11 @@ import java.util.List;
  */
 public class RequestPayload {
 	private String teamName;
+
 	private List<TeamContent> teamsContentsList;
 
-	private String reindeerName;
-	private HashMap<String, String> nameToEmail;
+//	private String reindeerName;
+//	private HashMap<String, String> nameEmaiMap;
 
 	public RequestPayload() {
 		
@@ -24,6 +25,32 @@ public class RequestPayload {
 		this.teamName = teamName;
 		this.teamsContentsList = listOfContents;
 	}
+	
+	public String getTeamName() {
+		return teamName;
+	}
+
+	public void setTeamName(String teamName) {
+		this.teamName = teamName;
+	}
+
+	public List<TeamContent> getTeamsContentsList() {
+		return teamsContentsList;
+	}
+
+	public void setTeamsContentsList(List<TeamContent> teamsContentsList) {
+		this.teamsContentsList = teamsContentsList;
+	}
+
+//	public String getReindeerName() {
+//		return reindeerName;
+//	}
+//
+//	public void setReindeerName(String reindeerName) {
+//		this.reindeerName = reindeerName;
+//	}
+
+	
 
 	private class TeamContent {
 		private String reindeerName;
@@ -38,5 +65,23 @@ public class RequestPayload {
 			this.reindeerName = reindeerName;
 			this.namEmaiMap = nameToEmail;
 		}
+
+		public String getReindeerName() {
+			return reindeerName;
+		}
+
+		public void setReindeerName(String reindeerName) {
+			this.reindeerName = reindeerName;
+		}
+
+		public HashMap<String, String> getNamEmaiMap() {
+			return namEmaiMap;
+		}
+
+		public void setNamEmaiMap(HashMap<String, String> namEmaiMap) {
+			this.namEmaiMap = namEmaiMap;
+		}
+		
+		
 	}
 }
