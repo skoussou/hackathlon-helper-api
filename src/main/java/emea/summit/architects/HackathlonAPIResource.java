@@ -96,6 +96,30 @@ public class HackathlonAPIResource {
    "\t]\n"+
    "};\b";
 	
+	private static final String API_PAYLOAD_EXAMPLE = 
+		"{\n"+  
+		"		   \"teamName\":\"0_TEAM\",\n"+
+		"		   \"teamsContentsList\":[\n"+  
+		"		      {\n"+  
+		"		         \"reindeerName\":\"blixen\",\n"+
+		"		         \"nameToEmail\":{\n"+  
+		"		            \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
+		"		            \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
+		"		         }\n"+
+		"		      },\n"+
+		"		      {\n"+  
+		"		         \"reindeerName\":\"dancer\",\n"+
+		"		         \"nameEmaiMap\":{\n"+  
+		"		            \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
+		"		            \"Alexis Tsipras\":\"atsipras@redhat.com\"\n"+
+		"		         }\n"+
+		"		      }\n"+
+		"		   ]\n"+
+		"		}";
+			
+			
+			
+	
 	private static LinkedList<String> serviceRoutes = new LinkedList<String>(Arrays.asList("http://santas-helpers-a-team.router.default.svc.cluster.local",
             "http://santas-helpers-b-team.router.default.svc.cluster.local",
             "http://santas-helpers-c-team.router.default.svc.cluster.local",
@@ -189,6 +213,8 @@ public class HackathlonAPIResource {
         +"API PAYLOAD"
         +"-----------------------"
         +API_PAYLOAD
+        +"\nEXAMPLE : \n\n"
+        +API_PAYLOAD_EXAMPLE
         +"===========================================";
         
         System.out.println(info);
