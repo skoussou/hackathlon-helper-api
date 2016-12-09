@@ -10,21 +10,19 @@ import java.util.List;
  */
 public class RequestPayload {
 	private String teamName;
-
-	private List<TeamContent> teamsContentsList;
-
-//	private String reindeerName;
-//	private HashMap<String, String> nameEmaiMap;
+	//private List<TeamContent> teamsContentsList;
+	private String reindeerName;
+	private HashMap<String, String> nameEmaiMap;
 
 	public RequestPayload() {
 		
 	}
 	
-	public RequestPayload(String teamName, List<TeamContent> listOfContents) {
-		super();
-		this.teamName = teamName;
-		this.teamsContentsList = listOfContents;
-	}
+//	public RequestPayload(String teamName, List<TeamContent> listOfContents) {
+//		super();
+//		this.teamName = teamName;
+//		this.teamsContentsList = listOfContents;
+//	}
 	
 	public String getTeamName() {
 		return teamName;
@@ -34,23 +32,31 @@ public class RequestPayload {
 		this.teamName = teamName;
 	}
 
-	public List<TeamContent> getTeamsContentsList() {
-		return teamsContentsList;
-	}
-
-	public void setTeamsContentsList(List<TeamContent> teamsContentsList) {
-		this.teamsContentsList = teamsContentsList;
-	}
-
-//	public String getReindeerName() {
-//		return reindeerName;
+//	public List<TeamContent> getTeamsContentsList() {
+//		return teamsContentsList;
 //	}
 //
-//	public void setReindeerName(String reindeerName) {
-//		this.reindeerName = reindeerName;
+//	public void setTeamsContentsList(List<TeamContent> teamsContentsList) {
+//		this.teamsContentsList = teamsContentsList;
 //	}
 
+	public String getReindeerName() {
+		return reindeerName;
+	}
+
+	public void setReindeerName(String reindeerName) {
+		this.reindeerName = reindeerName;
+	}
+
 	
+
+	public HashMap<String, String> getNameEmaiMap() {
+		return nameEmaiMap;
+	}
+
+	public void setNameEmaiMap(HashMap<String, String> nameEmaiMap) {
+		this.nameEmaiMap = nameEmaiMap;
+	}
 
 	private class TeamContent {
 		private String reindeerName;
@@ -81,7 +87,7 @@ public class RequestPayload {
 		public void setNamEmaiMap(HashMap<String, String> namEmaiMap) {
 			this.namEmaiMap = namEmaiMap;
 		}
-		
-		
+
 	}
+	
 }

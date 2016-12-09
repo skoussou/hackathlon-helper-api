@@ -30,8 +30,8 @@ public class SwaggerListener implements ServletContextListener {
         BeanConfig beanConfig = new BeanConfig();
         beanConfig.setVersion("1.0.0");
         beanConfig.setSchemes(new String[] { "http" });
-        beanConfig.setTitle("Email Santas List microservices REST API");
-        beanConfig.setDescription("Operations that can be invoked in the Email Santas List microservices");
+        beanConfig.setTitle("Santas Microservices REST API");
+        beanConfig.setDescription("Operations that can be invoked in the preperation of Santa's XMas microservices");
         beanConfig.setResourcePackage("emea.summit.architects");
         beanConfig.setLicense("Apache 2.0");
         beanConfig.setLicenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html");
