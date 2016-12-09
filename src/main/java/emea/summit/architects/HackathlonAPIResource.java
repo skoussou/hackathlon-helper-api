@@ -116,6 +116,8 @@ public class HackathlonAPIResource {
 		"		      }\n"+
 		"		   ]\n"+
 		"		}";
+
+	private static final int ZERO = 0;
 			
 			
 			
@@ -190,21 +192,28 @@ public class HackathlonAPIResource {
     @Consumes("application/json")
     @ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
 //    public String validate(String jsonRequest) {
-    public String validate(List<RequestPayload> jsonRequest) {
+    public String validate(List<RequestPayload> request) {
 
-    	System.out.println("Request Object ---->" +jsonRequest.toString());
-//    	ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
-//    	RequestPayload requestContent = null;
-//        try {
-//        	requestContent = mapper.readValue(jsonRequest, RequestPayload.class );
-//        } catch (IOException e) {
-//                 System.out.println("Request was invalid cause: "+e.getMessage());
-//                 return "Request was invalid cause: "+e.getMessage();
-//        }
-        
+    	System.out.println("Request Object ---->" +request.toString());
+
+    	boolean ordered = inOrder(request.iterator(), null);
         // TODO - Check for ordering
         
         return "The service is valid and Reindeers in order";
+    }
+    
+    private boolean inOrder(Iterator<RequestPayload> reindeersIt, String reindeer) {
+    	String nextReindeer = null;
+    	if (reindeersIt == null || !reindeersIt.hasNext()){
+    		return true;
+    	}
+    	if (reindeersIt.hasNext()){
+    		nextReindeer = reindeersIt.next().getReindeerName();
+    		if (reindeer.compareToIgnoreCase(nextReindeer) > ZERO) {
+    			return false;
+    		}
+    	}
+    	return inOrder(reindeersIt, nextReindeer);
     }
 
     
