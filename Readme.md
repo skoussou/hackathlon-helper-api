@@ -25,16 +25,25 @@ Deploy the application in Openshift
 		mvn clean package docker:build fabric8:json fabric8:apply
 
 Alternative
-1. Go to OCP Project/Namespace where this will be used
-2. Create new img		
+-----------------------------------
+1. Add WildflySwarm Template
 
-		oc new-app --name helper-api wildflyswarm-10-centos7~https://github.com/skoussou/swarm-email-santa
+		Login as admin user on OCP (cannot be done as normal non-admin user) 	: oc login https://35.156.133.70:8443
+		Go to project openshift							: oc project openshift
+		Add the widflyswarm template						: oc create -f https://raw.githubusercontent.com/wildfly-swarm/sti-wildflyswarm/master/1.0/wildflyswarm-sti-all.json
+		Check progress								: oc logs bc/wildflyswarm-10-centos7-build -f
+		Should be in the templates (if not in cli it is in console)		: oc get templates -n openshift
 
-3. Check progress with: 	
+2. Go to OCP Project/Namespace where this will be exposed from
+3. Create new img		
+
+		oc new-app --name helper-api wildflyswarm-10-centos7~https://github.com/skoussou/hackathlon-helper-api
+
+4. Check progress with: 	
 
 		oc status & oc logs -f bc/helper-api
 
-4. if things go wrong you probably have to delete the following (check if they exist)
+5. if things go wrong you probably have to delete the following (check if they exist)
 
 		 - oc delete imagestream helper-api
 		 - oc delete buildconfig helper-api
@@ -43,7 +52,7 @@ Alternative
 		 - oc delete service helper-api
 		
 		 - and redo the above
-5. Add route
-6. Don't forget to add to /etc/hosts against infra IP if needed to call from browser or external to OCP if your OCP cluster doesn't resolve via DNS the route
+6. Add route
+7. Don't forget to add to /etc/hosts against infra IP if needed to call from browser or external to OCP if your OCP cluster doesn't resolve via DNS the route
 
 

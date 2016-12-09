@@ -14,10 +14,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>emea.summit.architects</groupId>
-	<artifactId>swarm-email-santas-list</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>hackathlon-helper-api</artifactId>
+	<version>1.0.0</version>
 	<packaging>war</packaging>
-	<name>Red Hat MSA: swarm-email-santas-list</name>
+	<name>MSA: hackathlong-helper-api (swarm)</name>
 	<description>WildFly Swarm MSA to deliver results</description>
 
 	<licenses>
