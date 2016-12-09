@@ -199,6 +199,27 @@ public class HackathlonAPIResource {
 		}
     	return "Email was submitted successfully";
     }
+    
+    @POST  
+    @Path("/service/validate")
+    @Consumes("application/json")
+    @ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
+    //	public Response createProductInJSON(Product product) {          
+    public String validate(String jsonRequest) {
+
+    	ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
+    	RequestPayload requestContent = null;
+        try {
+        	requestContent = mapper.readValue(jsonRequest, RequestPayload.class );
+        } catch (IOException e) {
+                 System.out.println("Request was invalid cause: "+e.getMessage());
+                 return "Request was invalid cause: "+e.getMessage();
+        }
+        
+        // TODO - Check for ordering
+        
+        return "The service is valid and Reindeers in order";
+    }
 
     
     @GET
@@ -207,15 +228,15 @@ public class HackathlonAPIResource {
     @ApiOperation("Returns the greeting in Spanish")
     public String info() {
         
-        String info = "\n\n ==========================================="
-        +"\n\n     EMEA ARCHITECTS HATCKATHLON INFORMATION "
-        +"============================================"
-        +"API PAYLOAD"
-        +"-----------------------"
-        +API_PAYLOAD
-        +"\nEXAMPLE : \n\n"
-        +API_PAYLOAD_EXAMPLE
-        +"===========================================";
+        String info = "\n\n================================================"
+        +"\n     EMEA ARCHITECTS HATCKATHLON INFORMATION "
+        +"\n================================================"
+        +"\n\nAPI PAYLOAD"
+        +"\n-----------------------"
+        +"\n"+API_PAYLOAD
+        +"\n\nEXAMPLE : \n"
+        +"\n"+API_PAYLOAD_EXAMPLE
+        +"\n===========================================";
         
         System.out.println(info);
         
