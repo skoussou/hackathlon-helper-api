@@ -23,3 +23,21 @@ Deploy the application in Openshift
 2. Execute
 
 		mvn clean package docker:build fabric8:json fabric8:apply
+
+Alternative
+1. Go to OCP Project/Namespace where this will be used
+2. Create new img		
+                                oc new-app --name helper-api wildflyswarm-10-centos7~https://github.com/skoussou/swarm-email-santa
+3. Check progress with: 	
+                                oc status & oc logs -f bc/helper-api
+4. if things go wrong you probably have to delete the following (check if they exist)
+ - oc delete imagestream helper-api
+ - oc delete buildconfig helper-api
+ - oc delete deploymentconfigs helper-api
+ - oc delete deploymentconfig helper-api
+ - oc delete service helper-api
+ - and redo the above
+5. Add route
+6. Don't forget to add to /etc/hosts against infra IP if needed to call from browser or external to OCP if your OCP cluster doesn't resolve via DNS the route
+
+
