@@ -35,6 +35,7 @@ Alternative
 		oc status & oc logs -f bc/helper-api
 
 4. if things go wrong you probably have to delete the following (check if they exist)
+
 		 - oc delete imagestream helper-api
 		 - oc delete buildconfig helper-api
 		 - oc delete deploymentconfigs helper-api
