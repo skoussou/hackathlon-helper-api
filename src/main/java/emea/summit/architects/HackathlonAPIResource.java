@@ -197,7 +197,11 @@ public class HackathlonAPIResource {
     	System.out.println("Request Object ---->" +request.toString());
 
     	boolean ordered = inOrder(request.iterator(), null);
-        // TODO - Check for ordering
+    	
+    	if (!ordered) {
+            return "The service is invalid and Reindeers are out of order \n "+request.toString();
+
+    	}
         
         return "The service is valid and Reindeers in order";
     }
@@ -209,11 +213,13 @@ public class HackathlonAPIResource {
     	}
     	if (reindeersIt.hasNext()){
     		nextReindeer = reindeersIt.next().getReindeerName();
+    		System.out.println(" Compare "+reindeer+" vs "+nextReindeer);
     		if (reindeer != null && reindeer.compareToIgnoreCase(nextReindeer) > ZERO) {
     			return false;
     		}
+        	return inOrder(reindeersIt, nextReindeer);
     	}
-    	return inOrder(reindeersIt, nextReindeer);
+    	return true;
     }
 
     
