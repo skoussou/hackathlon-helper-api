@@ -170,10 +170,8 @@ public class HackathlonAPIResource {
 //    @POST  
     @PUT
     @Path("/email-santa/{emailContent}")
-	//@Consumes("application/json")
     @Consumes("application/json")
     @ApiOperation("Sends the email to Santa with the list")
-//	public Response createProductInJSON(Product product) {          
     public String sendEmailNotification(@PathParam(value = "emailContent") String emailContent) {
     	
     	// TODO - Read via PARAM so that each team will have to go and declare their own property
@@ -186,6 +184,23 @@ public class HackathlonAPIResource {
 		}
     	return "Email was submitted successfully";
     }
+    
+  @POST  
+  @Path("/email-santa")
+  @Consumes("application/json")
+  @ApiOperation("Sends the email to Santa with the list")
+  public String sendEmailNotification(List<RequestPayload> request) {
+  	
+  	// TODO - Read via PARAM so that each team will have to go and declare their own property
+  	try {
+			JavaMailService.generateAndSendEmail(request.toString());
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "Email Failed due to "+e.getMessage();
+		}
+  	return "Email was submitted successfully";
+  }
     
     @POST  
     @Path("/service/validate")
@@ -205,23 +220,6 @@ public class HackathlonAPIResource {
         
         return "The service is valid and Reindeers in order";
     }
-    
-    private boolean inOrder(Iterator<RequestPayload> reindeersIt, String reindeer) {
-    	String nextReindeer = null;
-    	if (reindeersIt == null || !reindeersIt.hasNext()){
-    		return true;
-    	}
-    	if (reindeersIt.hasNext()){
-    		nextReindeer = reindeersIt.next().getReindeerName();
-    		System.out.println(" Compare "+reindeer+" vs "+nextReindeer);
-    		if (reindeer != null && reindeer.compareToIgnoreCase(nextReindeer) > ZERO) {
-    			return false;
-    		}
-        	return inOrder(reindeersIt, nextReindeer);
-    	}
-    	return true;
-    }
-
     
     @GET
     @Path("/info")
@@ -324,6 +322,23 @@ public class HackathlonAPIResource {
    		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
    		System.out.println("****************************************************************");
 		return result;
+    }
+    
+    
+    private boolean inOrder(Iterator<RequestPayload> reindeersIt, String reindeer) {
+    	String nextReindeer = null;
+    	if (reindeersIt == null || !reindeersIt.hasNext()){
+    		return true;
+    	}
+    	if (reindeersIt.hasNext()){
+    		nextReindeer = reindeersIt.next().getReindeerName();
+    		System.out.println(" Compare "+reindeer+" vs "+nextReindeer);
+    		if (reindeer != null && reindeer.compareToIgnoreCase(nextReindeer) > ZERO) {
+    			return false;
+    		}
+        	return inOrder(reindeersIt, nextReindeer);
+    	}
+    	return true;
     }
     
     private String getNextServiceRouteURL(String currentService) {
