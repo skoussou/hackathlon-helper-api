@@ -86,19 +86,6 @@ import io.undertow.client.ClientRequest;
 @Path("/")
 public class HackathlonAPIResource {
 	
-	private static Map<String, String> servicesURLMap = new HashMap<String, String>();
-
-//	private static final String API_PAYLOAD = "{  \n"+  
-//   "\tteamName\":\" ,\n"+
-//   "\tteamsContentsList\":[\n"+  
-//   "\t\t   {\n"+  
-//       "\t\t\t \"reindeerName\":\" \",\n"+
-//       "\t\t\t \"nameEmaiMap\":{\n"+  
-//            "\t\t\t\t \" \":\" \" \n"+
-//    "\t\t\t     }\n"+
-//    "\t\t  }\n"+
-//   "\t]\n"+
-//   "};\b";
 	private static final String API_PAYLOAD = "[  \n"+ 
 	"   {  \n"+ 
 	"      \"teamName\":\"\",\n"+ 
@@ -109,26 +96,6 @@ public class HackathlonAPIResource {
 	"   }\n"+ 
 	"]\n";
 	
-//	private static final String API_PAYLOAD_EXAMPLE = 
-//		"{\n"+  
-//		"		   \"teamName\":\"0_TEAM\",\n"+
-//		"		   \"teamsContentsList\":[\n"+  
-//		"		      {\n"+  
-//		"		         \"reindeerName\":\"blixen\",\n"+
-//		"		         \"nameEmaiMap\":{\n"+  
-//		"		            \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
-//		"		            \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
-//		"		         }\n"+
-//		"		      },\n"+
-//		"		      {\n"+  
-//		"		         \"reindeerName\":\"dancer\",\n"+
-//		"		         \"nameEmaiMap\":{\n"+  
-//		"		            \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
-//		"		            \"Alexis Tsipras\":\"atsipras@redhat.com\"\n"+
-//		"		         }\n"+
-//		"		      }\n"+
-//		"		   ]\n"+
-//		"		}";
 
 	private static final String API_PAYLOAD_EXAMPLE = 
 	"[  \n"+
@@ -151,9 +118,6 @@ public class HackathlonAPIResource {
 	"]\n";
 
 	private static final int ZERO = 0;
-			
-			
-			
 	
 	private static LinkedList<String> serviceRoutes = new LinkedList<String>(Arrays.asList("http://santas-helpers-a-team.router.default.svc.cluster.local",
             "http://santas-helpers-b-team.router.default.svc.cluster.local",
@@ -236,11 +200,10 @@ public class HackathlonAPIResource {
   @Path("/email-santa")
   @Consumes("application/json")
   @ApiOperation("Sends the email to Santa with the list")
-  public String sendEmailNotification(List<RequestPayload> request) {
+  public String sendEmailNotification(List<RequestPayload> request, String subject, List<String> emailList) {
   	
-  	// TODO - Read via PARAM so that each team will have to go and declare their own property
   	try {
-			JavaMailService.generateAndSendEmail(request.toString());
+			JavaMailService.generateAndSendEmail(request.toString(), subject, emailList);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

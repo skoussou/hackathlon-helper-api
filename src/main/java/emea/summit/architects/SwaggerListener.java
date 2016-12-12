@@ -36,7 +36,7 @@ public class SwaggerListener implements ServletContextListener {
         beanConfig.setLicense("Apache 2.0");
         beanConfig.setLicenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html");
         beanConfig.setContact("stelios@redhat.com");
-        beanConfig.setBasePath("/api");
+        beanConfig.setBasePath("/api/hackathlon");
         beanConfig.setPrettyPrint(true);
         beanConfig.setScan(true);
     }
