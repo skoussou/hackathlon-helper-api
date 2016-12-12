@@ -199,7 +199,7 @@ public class HackathlonAPIResource {
   @POST  
   @Path("/service/email-santa")
   @Consumes("application/json")
-  @ApiOperation("Sends the email to Santa with the list")
+  @ApiOperation("Sends the email to a list of participants, with subject and payload")
   public String sendEmailNotification(List<RequestPayload> request, String subject, List<String> emailList) {
   	
   	try {
