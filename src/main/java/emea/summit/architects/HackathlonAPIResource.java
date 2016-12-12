@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -83,39 +85,70 @@ import io.undertow.client.ClientRequest;
  */
 @Path("/")
 public class HackathlonAPIResource {
-
-	private static final String API_PAYLOAD = "{  \n"+  
-   "\tteamName\":\" ,\n"+
-   "\tteamsContentsList\":[\n"+  
-   "\t\t   {\n"+  
-       "\t\t\t \"reindeerName\":\" \",\n"+
-       "\t\t\t \"nameEmaiMap\":{\n"+  
-            "\t\t\t\t \" \":\" \" \n"+
-    "\t\t\t     }\n"+
-    "\t\t  }\n"+
-   "\t]\n"+
-   "};\b";
 	
+	private static Map<String, String> servicesURLMap = new HashMap<String, String>();
+
+//	private static final String API_PAYLOAD = "{  \n"+  
+//   "\tteamName\":\" ,\n"+
+//   "\tteamsContentsList\":[\n"+  
+//   "\t\t   {\n"+  
+//       "\t\t\t \"reindeerName\":\" \",\n"+
+//       "\t\t\t \"nameEmaiMap\":{\n"+  
+//            "\t\t\t\t \" \":\" \" \n"+
+//    "\t\t\t     }\n"+
+//    "\t\t  }\n"+
+//   "\t]\n"+
+//   "};\b";
+	private static final String API_PAYLOAD = "[  \n"+ 
+	"   {  \n"+ 
+	"      \"teamName\":\"\",\n"+ 
+	"      \"reindeerName\":\"\",\n"+ 
+	"      \"nameEmaiMap\":{  \n"+ 
+	"         \" \":\" \"\n"+ 
+	"      }\n"+ 
+	"   }\n"+ 
+	"]\n";
+	
+//	private static final String API_PAYLOAD_EXAMPLE = 
+//		"{\n"+  
+//		"		   \"teamName\":\"0_TEAM\",\n"+
+//		"		   \"teamsContentsList\":[\n"+  
+//		"		      {\n"+  
+//		"		         \"reindeerName\":\"blixen\",\n"+
+//		"		         \"nameEmaiMap\":{\n"+  
+//		"		            \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
+//		"		            \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
+//		"		         }\n"+
+//		"		      },\n"+
+//		"		      {\n"+  
+//		"		         \"reindeerName\":\"dancer\",\n"+
+//		"		         \"nameEmaiMap\":{\n"+  
+//		"		            \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
+//		"		            \"Alexis Tsipras\":\"atsipras@redhat.com\"\n"+
+//		"		         }\n"+
+//		"		      }\n"+
+//		"		   ]\n"+
+//		"		}";
+
 	private static final String API_PAYLOAD_EXAMPLE = 
-		"{\n"+  
-		"		   \"teamName\":\"0_TEAM\",\n"+
-		"		   \"teamsContentsList\":[\n"+  
-		"		      {\n"+  
-		"		         \"reindeerName\":\"blixen\",\n"+
-		"		         \"nameEmaiMap\":{\n"+  
-		"		            \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
-		"		            \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
-		"		         }\n"+
-		"		      },\n"+
-		"		      {\n"+  
-		"		         \"reindeerName\":\"dancer\",\n"+
-		"		         \"nameEmaiMap\":{\n"+  
-		"		            \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
-		"		            \"Alexis Tsipras\":\"atsipras@redhat.com\"\n"+
-		"		         }\n"+
-		"		      }\n"+
-		"		   ]\n"+
-		"		}";
+	"[  \n"+
+	"   {  \n"+
+	"      \"teamName\":\"Team_A\",\n"+
+	"      \"reindeerName\":\"blixen\",\n"+
+	"      \"nameEmaiMap\":{  \n"+
+	"         \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
+	"         \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
+	"      }\n"+
+	"   },\n"+
+	"   {  \n"+
+	"      \"teamName\":\"Team_B\",\n"+
+	"      \"reindeerName\":\"dancer\",\n"+
+	"      \"nameEmaiMap\":{  \n"+
+	"         \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
+	"         \"Antonis Tsipras\":\"atsipras@redhat.com\"\n"+
+	"      }\n"+
+	"   }\n"+
+	"]\n";
 
 	private static final int ZERO = 0;
 			
@@ -165,6 +198,20 @@ public class HackathlonAPIResource {
 //    		}
     	}
 		return "ERROR: No matching next service for the provided Santa Team";
+    }
+    
+    @POST
+    @Path("/service/register")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @ApiOperation("Registers the URL of the servce against the TEAM name, rejects if team name is not in the pre-defined list")
+    public String registerService(String teamName, String yourServiceEndpointURL) {
+    	
+    	System.out.println("Team : Service URL Registration ("+teamName+":"+yourServiceEndpointURL+")\n\n");
+    	
+    	System.out.println(servicesURLMap.toString());
+    	
+		return servicesURLMap.toString();
     }
     
 //    @POST  
