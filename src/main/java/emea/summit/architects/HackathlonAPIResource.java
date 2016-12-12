@@ -200,20 +200,20 @@ public class HackathlonAPIResource {
 		return "ERROR: No matching next service for the provided Santa Team";
     }
     
-    @POST
-    @Path("/service/register")
-    @Consumes("application/json")
-    @Produces("application/json")
-    @ApiOperation("Registers the URL of the servce against the TEAM name, rejects if team name is not in the pre-defined list")
-    public String registerService(String teamName, String yourServiceEndpointURL) {
-    	
-    	System.out.println("Team : Service URL Registration ("+teamName+":"+yourServiceEndpointURL+")\n\n");
-    	
-    	System.out.println(servicesURLMap.toString());
-    	
-		return servicesURLMap.toString();
-    }
-    
+//    @POST
+//    @Path("/service/register")
+//    @Consumes("application/json")
+//    @Produces("application/json")
+//    @ApiOperation("Registers the URL of the servce against the TEAM name, rejects if team name is not in the pre-defined list")
+//    public String registerService(String teamName, String yourServiceEndpointURL) {
+//    	
+//    	System.out.println("Team : Service URL Registration ("+teamName+":"+yourServiceEndpointURL+")\n\n");
+//    	
+//    	System.out.println(servicesURLMap.toString());
+//    	
+//		return servicesURLMap.toString();
+//    }
+//    
 //    @POST  
     @PUT
     @Path("/email-santa/{emailContent}")
