@@ -85,406 +85,423 @@ import io.undertow.client.ClientRequest;
  */
 @Path("/")
 public class HackathlonAPIResource {
-	
+
 	private static final String API_PAYLOAD = "[  \n"+ 
-	"   {  \n"+ 
-	"      \"teamName\":\"\",\n"+ 
-	"      \"reindeerName\":\"\",\n"+ 
-	"      \"nameEmaiMap\":{  \n"+ 
-	"         \" \":\" \"\n"+ 
-	"      }\n"+ 
-	"   }\n"+ 
-	"]\n";
-	
+			"   {  \n"+ 
+			"      \"teamName\":\"\",\n"+ 
+			"      \"reindeerName\":\"\",\n"+ 
+			"      \"nameEmaiMap\":{  \n"+ 
+			"         \" \":\" \"\n"+ 
+			"      }\n"+ 
+			"   }\n"+ 
+			"]\n";
+
 
 	private static final String API_PAYLOAD_EXAMPLE = 
-	"[  \n"+
-	"   {  \n"+
-	"      \"teamName\":\"Team_A\",\n"+
-	"      \"reindeerName\":\"blixen\",\n"+
-	"      \"nameEmaiMap\":{  \n"+
-	"         \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
-	"         \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
-	"      }\n"+
-	"   },\n"+
-	"   {  \n"+
-	"      \"teamName\":\"Team_B\",\n"+
-	"      \"reindeerName\":\"dancer\",\n"+
-	"      \"nameEmaiMap\":{  \n"+
-	"         \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
-	"         \"Antonis Tsipras\":\"atsipras@redhat.com\"\n"+
-	"      }\n"+
-	"   }\n"+
-	"]\n";
+			"[  \n"+
+					"   {  \n"+
+					"      \"teamName\":\"Team_A\",\n"+
+					"      \"reindeerName\":\"blixen\",\n"+
+					"      \"nameEmaiMap\":{  \n"+
+					"         \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
+					"         \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
+					"      }\n"+
+					"   },\n"+
+					"   {  \n"+
+					"      \"teamName\":\"Team_B\",\n"+
+					"      \"reindeerName\":\"dancer\",\n"+
+					"      \"nameEmaiMap\":{  \n"+
+					"         \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
+					"         \"Antonis Tsipras\":\"atsipras@redhat.com\"\n"+
+					"      }\n"+
+					"   }\n"+
+					"]\n";
 
 	private static final int ZERO = 0;
-	
+
 	private static LinkedList<String> serviceRoutes = new LinkedList<String>(Arrays.asList("http://santas-helpers-a-team.router.default.svc.cluster.local",
-            "http://santas-helpers-b-team.router.default.svc.cluster.local",
-            "http://santas-helpers-c-team.router.default.svc.cluster.local",
-            "http://santas-helpers-d-team.router.default.svc.cluster.local",
-            "http://santas-helpers-e-team.router.default.svc.cluster.local",
-            "http://swarm-email-santas-list.router.default.svc.cluster.local"));
+			"http://santas-helpers-b-team.router.default.svc.cluster.local",
+			"http://santas-helpers-c-team.router.default.svc.cluster.local",
+			"http://santas-helpers-d-team.router.default.svc.cluster.local",
+			"http://santas-helpers-e-team.router.default.svc.cluster.local",
+			"http://swarm-email-santas-list.router.default.svc.cluster.local"));
+
+	@Inject
+	private Brave brave;
+
+	@Context
+	private SecurityContext securityContext;
+
+	@Context
+	private HttpServletRequest servletRequest;
+
+
+	@POST  
+	@Path("/service/proxy")
+	@Consumes("application/json")
+	@ApiOperation("Receives request, validates request so far, identifies next service to contact, contacts the service OR if no more sends the email to SANTA")
+	public String submit(String team, List<RequestPayload> request) {
+		boolean PROD_ENV = System.getenv("ENVIRONMENT") != null &&  System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")? true : false;
+		
+//		if (validate(request)){
+//			// TOOD 
+//			// find the next service and send OR send email to SANTA
+//		} else {
+//			// Send a failed response to the requestors and an email.
+//		}
+		
+		
+//		try {
+//			JavaMailService.generateAndSendEmail(email.getContent().toString(), email.getSubject(), email.getEmailAddresses());
+//		} catch (MessagingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return "Email Failed due to "+e.getMessage();
+//		}
+		return "Email was submitted successfully";
+	}
 	
-    @Inject
-    private Brave brave;
+	@POST  
+	@Path("/service/email-santa")
+	@Consumes("application/json")
+	@ApiOperation("Sends the email to a list of participants, with subject and payload")
+	public String sendEmailNotification(EmailPayload email) {
 
-    @Context
-    private SecurityContext securityContext;
+		try {
+			JavaMailService.generateAndSendEmail(email.getContent().toString(), email.getSubject(), email.getEmailAddresses());
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "Email Failed due to "+e.getMessage();
+		}
+		return "Email was submitted successfully";
+	}
 
-    @Context
-    private HttpServletRequest servletRequest;
-    
-    @POST
-    @Path("/next-service")
-    @Consumes("application/json")
-    @Produces("application/json")
-    @ApiOperation("Returns the URL of the next MSA in the teams of Santa Helpers to be used to communicate with")
-    public String nextService(String yourServiceName) {
-    	
-    	System.out.println("Current Service ("+yourServiceName+")");
-    	
-    	// TODO - Read via PARAM so that each team will have to go and declare their own property
-    	if (yourServiceName != null) {
-    		System.out.println("Current Service ("+yourServiceName+") NOT NULL ");
-    		return getNextServiceRouteURL(yourServiceName);
-//    		if (yourServiceName.equalsIgnoreCase("santas-helpers-a-team")) {
-//    			return "http://santas-helpers-b-team.router.default.svc.cluster.local";
-//    		}else if (yourServiceName.equalsIgnoreCase("santas-helpers-b-team")) {
-//    			return "http://santas-helpers-c-team.router.default.svc.cluster.local";
-//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-c-team")) {
-//    			return "http://santas-helpers-d-team.router.default.svc.cluster.local";
-//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-d-team")) {
-//    			return "http://santas-helpers-e-team.router.default.svc.cluster.local";
-//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-e-team")) {
-//    			return "http://swarm-email-santas-list.router.default.svc.cluster.local";
-//
-//    		}
-    	}
+	@POST  
+	@Path("/service/validate")
+	@Consumes("application/json")
+	@ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
+	public String validate(List<RequestPayload> request) {
+
+		System.out.println("Request Object ---->" +request.toString());
+
+		boolean ordered = inOrder(request.iterator(), null);
+
+		if (!ordered) {
+			return "The service is invalid and Reindeers are out of order \n "+request.toString();
+
+		}
+
+		return "The service is valid and Reindeers in order";
+	}
+
+	@GET
+	@Path("/info")
+	@Produces("application/json")
+	@ApiOperation("Returns the greeting in Spanish")
+	public String info() {
+
+		String info = "\n\n================================================"
+				+"\n     EMEA ARCHITECTS HATCKATHLON INFORMATION "
+				+"\n================================================"
+				+"\n\nAPI PAYLOAD"
+				+"\n-----------------------"
+				+"\n"+API_PAYLOAD
+				+"\n\nEXAMPLE : \n"
+				+"\n"+API_PAYLOAD_EXAMPLE
+				+"\n===========================================";
+
+		System.out.println(info);
+		return info;
+	}
+
+	@POST
+	@Path("/next-service")
+	@Consumes("application/json")
+	@Produces("application/json")
+	@ApiOperation("Returns the URL of the next MSA in the teams of Santa Helpers to be used to communicate with")
+	public String nextService(String yourServiceName) {
+
+		System.out.println("Current Service ("+yourServiceName+")");
+
+		// TODO - Read via PARAM so that each team will have to go and declare their own property
+		if (yourServiceName != null) {
+			System.out.println("Current Service ("+yourServiceName+") NOT NULL ");
+			return getNextServiceRouteURL(yourServiceName);
+			//    		if (yourServiceName.equalsIgnoreCase("santas-helpers-a-team")) {
+			//    			return "http://santas-helpers-b-team.router.default.svc.cluster.local";
+			//    		}else if (yourServiceName.equalsIgnoreCase("santas-helpers-b-team")) {
+			//    			return "http://santas-helpers-c-team.router.default.svc.cluster.local";
+			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-c-team")) {
+			//    			return "http://santas-helpers-d-team.router.default.svc.cluster.local";
+			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-d-team")) {
+			//    			return "http://santas-helpers-e-team.router.default.svc.cluster.local";
+			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-e-team")) {
+			//    			return "http://swarm-email-santas-list.router.default.svc.cluster.local";
+			//
+			//    		}
+		}
 		return "ERROR: No matching next service for the provided Santa Team";
-    }
-    
-//    @POST
-//    @Path("/service/register")
-//    @Consumes("application/json")
-//    @Produces("application/json")
-//    @ApiOperation("Registers the URL of the servce against the TEAM name, rejects if team name is not in the pre-defined list")
-//    public String registerService(String teamName, String yourServiceEndpointURL) {
-//    	
-//    	System.out.println("Team : Service URL Registration ("+teamName+":"+yourServiceEndpointURL+")\n\n");
-//    	
-//    	System.out.println(servicesURLMap.toString());
-//    	
-//		return servicesURLMap.toString();
-//    }
-//    
-//    @POST  
-    @PUT
-    @Path("/email-santa/{emailContent}")
-    @Consumes("application/json")
-    @ApiOperation("Sends the email to Santa with the list")
-    public String sendEmailNotification(@PathParam(value = "emailContent") String emailContent) {
-    	
-    	// TODO - Read via PARAM so that each team will have to go and declare their own property
-    	try {
+	}
+
+	//    @POST
+	//    @Path("/service/register")
+	//    @Consumes("application/json")
+	//    @Produces("application/json")
+	//    @ApiOperation("Registers the URL of the servce against the TEAM name, rejects if team name is not in the pre-defined list")
+	//    public String registerService(String teamName, String yourServiceEndpointURL) {
+	//    	
+	//    	System.out.println("Team : Service URL Registration ("+teamName+":"+yourServiceEndpointURL+")\n\n");
+	//    	
+	//    	System.out.println(servicesURLMap.toString());
+	//    	
+	//		return servicesURLMap.toString();
+	//    }
+	//    
+	//    @POST  
+	@PUT
+	@Path("/email-santa/{emailContent}")
+	@Consumes("application/json")
+	@ApiOperation("Sends the email to Santa with the list")
+	public String sendEmailNotification(@PathParam(value = "emailContent") String emailContent) {
+
+		// TODO - Read via PARAM so that each team will have to go and declare their own property
+		try {
 			JavaMailService.generateAndSendEmail(emailContent);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return "Email Failed due to "+e.getMessage();
 		}
-    	return "Email was submitted successfully";
-    }
-    
-  @POST  
-  @Path("/service/email-santa")
-  @Consumes("application/json")
-  @ApiOperation("Sends the email to a list of participants, with subject and payload")
-  public String sendEmailNotification(List<RequestPayload> request, String subject, List<String> emailList) {
-  	
-  	try {
-			JavaMailService.generateAndSendEmail(request.toString(), subject, emailList);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "Email Failed due to "+e.getMessage();
+		return "Email was submitted successfully";
+	}
+
+	@POST
+	@Path("/other-service")
+	@Consumes("application/json")
+	@Produces("application/json")
+	@ApiOperation("Call service to service")
+	public String callOtherService(String jsonRequest) {
+
+		ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
+		PostServiceBean requestContent = null;
+		try {
+			requestContent = mapper.readValue(jsonRequest, PostServiceBean.class );
+		} catch (IOException e) {
+			System.out.println("Request was invalid cause: "+e.getMessage());
+			return "Request was invalid cause: "+e.getMessage();
 		}
-  	return "Email was submitted successfully";
-  }
-    
-    @POST  
-    @Path("/service/validate")
-    @Consumes("application/json")
-    @ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
-//    public String validate(String jsonRequest) {
-    public String validate(List<RequestPayload> request) {
 
-    	System.out.println("Request Object ---->" +request.toString());
+		String httpMethod = requestContent.getHttpMethod();
+		String serviceURL =  requestContent.getUrl();
+		String data = requestContent.getContent();
 
-    	boolean ordered = inOrder(request.iterator(), null);
-    	
-    	if (!ordered) {
-            return "The service is invalid and Reindeers are out of order \n "+request.toString();
+		String result = "Not valid request for \n"+
+				"HTTP METHOD" + httpMethod +"\n"+
+				"URL" +serviceURL + "\n"+
+				"Content" + data;
 
-    	}
-        
-        return "The service is valid and Reindeers in order";
-    }
-    
-    @GET
-    @Path("/info")
-    @Produces("application/json")
-    @ApiOperation("Returns the greeting in Spanish")
-    public String info() {
-        
-        String info = "\n\n================================================"
-        +"\n     EMEA ARCHITECTS HATCKATHLON INFORMATION "
-        +"\n================================================"
-        +"\n\nAPI PAYLOAD"
-        +"\n-----------------------"
-        +"\n"+API_PAYLOAD
-        +"\n\nEXAMPLE : \n"
-        +"\n"+API_PAYLOAD_EXAMPLE
-        +"\n===========================================";
-        
-        System.out.println(info);
-        
-//        System.out.println("\n\n ===========================================");
-//        System.out.println("     EMEA ARCHITECTS HATCKATHLON INFORMATION ");
-//        System.out.println("============================================");
-//        System.out.println("API PAYLOAD");
-//        System.out.println("-----------------------");
-//        System.out.println(API_PAYLOAD);
-//        System.out.println("===========================================");
-        return info;
-    }
-    
-    @POST
-    @Path("/other-service")
-    @Consumes("application/json")
-    @Produces("application/json")
-    @ApiOperation("Call service to service")
-    public String callOtherService(String jsonRequest) {
-    	
-    	ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
-    	PostServiceBean requestContent = null;
-        try {
-        	requestContent = mapper.readValue(jsonRequest, PostServiceBean.class );
-        } catch (IOException e) {
-                 System.out.println("Request was invalid cause: "+e.getMessage());
-                 return "Request was invalid cause: "+e.getMessage();
-        }
-    	
-        String httpMethod = requestContent.getHttpMethod();
-        String serviceURL =  requestContent.getUrl();
-        String data = requestContent.getContent();
-        
-    	String result = "Not valid request for \n"+
-                "HTTP METHOD" + httpMethod +"\n"+
-		          "URL" +serviceURL + "\n"+
-                "Content" + data;
-    	
-    	System.out.println("<===================== Calling External Service  ======================>");
-    	System.out.println("     HTTP METHOD : "+httpMethod);
-    	System.out.println("     URL         : "+serviceURL);
-    	System.out.println("     Content     : "+data);
-   	    System.out.println("<======================================================================>");
+		System.out.println("<===================== Calling External Service  ======================>");
+		System.out.println("     HTTP METHOD : "+httpMethod);
+		System.out.println("     URL         : "+serviceURL);
+		System.out.println("     Content     : "+data);
+		System.out.println("<======================================================================>");
 
-   	    if (httpMethod != null || httpMethod.equals("GET") || httpMethod.equals("POST") || httpMethod.equals("PUT")) {
+		if (httpMethod != null || httpMethod.equals("GET") || httpMethod.equals("POST") || httpMethod.equals("PUT")) {
 
-   	    	try {
-   	    		HttpClientBuilder builder = HttpClientBuilder.create();
-   	    		CloseableHttpClient client = builder.build();
+			try {
+				HttpClientBuilder builder = HttpClientBuilder.create();
+				CloseableHttpClient client = builder.build();
 
-   	    		//HttpUriRequest request = new HttpGet(serviceURL+"api/hackathlon/info");
-   	    		HttpUriRequest request;
-   	    		if (httpMethod.equalsIgnoreCase("GET")){
-   	    			result = getRequest(serviceURL, "application/json");
-   	    		} else if (httpMethod.equalsIgnoreCase("POST")) {
-   	    			// eg. http://www.programcreek.com/java-api-examples/org.apache.http.entity.StringEntity
-   	    			StringEntity content = new StringEntity(data,"UTF-8");
-   	    			result = postRequest(serviceURL, "application/json", content);
-   	    		} else {
-   	    			result = putRequest(serviceURL, "application/json");
-   	    		}
+				//HttpUriRequest request = new HttpGet(serviceURL+"api/hackathlon/info");
+				HttpUriRequest request;
+				if (httpMethod.equalsIgnoreCase("GET")){
+					result = getRequest(serviceURL, "application/json");
+				} else if (httpMethod.equalsIgnoreCase("POST")) {
+					// eg. http://www.programcreek.com/java-api-examples/org.apache.http.entity.StringEntity
+					StringEntity content = new StringEntity(data,"UTF-8");
+					result = postRequest(serviceURL, "application/json", content);
+				} else {
+					result = putRequest(serviceURL, "application/json");
+				}
 
-   	    		System.out.println("<=================== RESPONSE ====================> ");
-   	    		System.out.println("    "+result); 
-   	    		System.out.println("<=======================================> ");
+				System.out.println("<=================== RESPONSE ====================> ");
+				System.out.println("    "+result); 
+				System.out.println("<=======================================> ");
 
-   	    	} catch (Exception e) {
-   	    		System.out.println("****************************************************************");
-   	    		//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-   	    		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
-   	    		System.out.println(e.getMessage());
-   	    		System.out.println("****************************************************************");
-   	    		return result;
-   	    	}
-   	    	System.out.println("****************************************************************");
-   	    	//System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-   	    	System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL);
-   	    	System.out.println("****************************************************************");
-   	    	return result;
+			} catch (Exception e) {
+				System.out.println("****************************************************************");
+				//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+				System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
+				System.out.println(e.getMessage());
+				System.out.println("****************************************************************");
+				return result;
+			}
+			System.out.println("****************************************************************");
+			//System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+			System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL);
+			System.out.println("****************************************************************");
+			return result;
 
-   	    }
-   		System.out.println("****************************************************************");
-   		//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-   		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
-   		System.out.println("****************************************************************");
+		}
+		System.out.println("****************************************************************");
+		//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
+		System.out.println("****************************************************************");
 		return result;
-    }
-    
-    
-    private boolean inOrder(Iterator<RequestPayload> reindeersIt, String reindeer) {
-    	String nextReindeer = null;
-    	if (reindeersIt == null || !reindeersIt.hasNext()){
-    		return true;
-    	}
-    	if (reindeersIt.hasNext()){
-    		nextReindeer = reindeersIt.next().getReindeerName();
-    		System.out.println(" Compare "+reindeer+" vs "+nextReindeer);
-    		if (reindeer != null && reindeer.compareToIgnoreCase(nextReindeer) > ZERO) {
-    			return false;
-    		}
-        	return inOrder(reindeersIt, nextReindeer);
-    	}
-    	return true;
-    }
-    
-    private String getNextServiceRouteURL(String currentService) {
-    	Iterator<String> routeIterator = serviceRoutes.iterator();
-    	while (routeIterator.hasNext()) {
-    		String svcURL = routeIterator.next();
-    		if(currentService.equalsIgnoreCase(svcURL)) {
-    			System.out.println("Match Found on SVC --> "+currentService);
-    			svcURL = routeIterator.next();
-    			System.out.println("RETURNED Next Service --> "+svcURL);
-    			return svcURL;
-    		}
-    		System.out.println("Next Service --> "+svcURL);
-    	}
-    	return null;
-    }
-    
-    
-    private static String postRequest(String url, String contentType, HttpEntity entity) throws Exception {
-    	HttpClientBuilder builder = HttpClientBuilder.create();
-   		CloseableHttpClient client = builder.build();
-    	HttpPost post = new HttpPost(url);
-    	post.setHeader("Content-Type", contentType);
-    	post.setEntity(entity);
-    	
-    	HttpResponse response = client.execute(post);
-    	StatusLine status = response.getStatusLine();			
-    	String content = EntityUtils.toString(response.getEntity());
-    	//JSONObject json = new JSONObject(content);
-    		
-    	return content;
-    }
-    
-    private static String getRequest(String url, String contentType) throws Exception {
-    	HttpClientBuilder builder = HttpClientBuilder.create();
-   		CloseableHttpClient client = builder.build();
-   		HttpUriRequest get = new HttpGet(url);
-   		get.setHeader("Content-Type", contentType);
-    	
-    	HttpResponse response = client.execute(get);
-    	StatusLine status = response.getStatusLine();			
-    	String content = EntityUtils.toString(response.getEntity());
-    	//JSONObject json = new JSONObject(content);
-    		
-    	return content;
-    }
-    
-    private static String putRequest(String url, String contentType) throws Exception {
-    	HttpClientBuilder builder = HttpClientBuilder.create();
-   		CloseableHttpClient client = builder.build();
-   		HttpUriRequest put = new HttpPut(url);
-   		put.setHeader("Content-Type", contentType);
-   		    	
-    	HttpResponse response = client.execute(put);
-    	StatusLine status = response.getStatusLine();			
-    	String content = EntityUtils.toString(response.getEntity());
-    	//JSONObject json = new JSONObject(content);
-    		
-    	return content;
-    }
+	}
 
-//    @GET
-//    @Path("/hackathlon/chaining/{serviceName}")
-//    @Produces("application/json")
-//    @ApiOperation("Returns the greeting plus the next service in the chain")
-//    public List<String> hackathlonServiceChaining(@PathParam(value = "serviceName") String yourServiceName) {
-//        List<String> greetings = new ArrayList<>();
-//        greetings.add(hola());
-//        greetings.addAll(getNextService().aloha());
-//        return greetings;
-//    }
-//    
-//    @GET
-//    @Path("/hola-chaining")
-//    @Produces("application/json")
-//    @ApiOperation("Returns the greeting plus the next service in the chain")
-//    public List<String> holaChaining() {
-//        List<String> greetings = new ArrayList<>();
-//        greetings.add(hola());
-//        greetings.addAll(getNextService().aloha());
-//        return greetings;
-//    }
 
-//    @GET
-//    @Path("/hola-secured")
-//    @Produces("text/plain")
-//    @ApiOperation("Returns a message that is only available for authenticated users")
-//    public String holaSecured() {
-//        // this will set the user id as userName
-//        String userName = securityContext.getUserPrincipal().getName();
-//
-//        if (securityContext.getUserPrincipal() instanceof KeycloakPrincipal) {
-//            @SuppressWarnings("unchecked")
-//            KeycloakPrincipal<KeycloakSecurityContext> kp = (KeycloakPrincipal<KeycloakSecurityContext>) securityContext.getUserPrincipal();
-//
-//            // this is how to get the real userName (or rather the login name)
-//            userName = kp.getKeycloakSecurityContext().getToken().getName();
-//        }
-//        return "This is a Secured resource. You are loged as " + userName;
-//
-//    }
+	private boolean inOrder(Iterator<RequestPayload> reindeersIt, String reindeer) {
+		String nextReindeer = null;
+		if (reindeersIt == null || !reindeersIt.hasNext()){
+			return true;
+		}
+		if (reindeersIt.hasNext()){
+			nextReindeer = reindeersIt.next().getReindeerName();
+			System.out.println(" Compare "+reindeer+" vs "+nextReindeer);
+			if (reindeer != null && reindeer.compareToIgnoreCase(nextReindeer) > ZERO) {
+				return false;
+			}
+			return inOrder(reindeersIt, nextReindeer);
+		}
+		return true;
+	}
 
-//    @GET
-//    @Path("/logout")
-//    @Produces("text/plain")
-//    @ApiOperation("Logout")
-//    public String logout() throws ServletException {
-//        servletRequest.logout();
-//        return "Logged out";
-//    }
+	private String getNextServiceRouteURL(String currentService) {
+		Iterator<String> routeIterator = serviceRoutes.iterator();
+		while (routeIterator.hasNext()) {
+			String svcURL = routeIterator.next();
+			if(currentService.equalsIgnoreCase(svcURL)) {
+				System.out.println("Match Found on SVC --> "+currentService);
+				svcURL = routeIterator.next();
+				System.out.println("RETURNED Next Service --> "+svcURL);
+				return svcURL;
+			}
+			System.out.println("Next Service --> "+svcURL);
+		}
+		return null;
+	}
 
-    /**
-     * This is were the "magic" happens: it creates a Feign, which is a proxy interface for remote calling a REST endpoint with
-     * Hystrix fallback support.
-     *
-     * @return The feign pointing to the service URL and with Hystrix fallback.
-     */
-    private AlohaService getNextService() {
-        final String serviceName = "aloha";
-        // This stores the Original/Parent ServerSpan from ZiPkin.
-        final ServerSpan serverSpan = brave.serverSpanThreadBinder().getCurrentServerSpan();
-        final CloseableHttpClient httpclient =
-            HttpClients.custom()
-                .addInterceptorFirst(new BraveHttpRequestInterceptor(brave.clientRequestInterceptor(), new DefaultSpanNameProvider()))
-                .addInterceptorFirst(new BraveHttpResponseInterceptor(brave.clientResponseInterceptor()))
-                .build();
-        String url = String.format("http://%s:8080/", serviceName);
-        return HystrixFeign.builder()
-            // Use apache HttpClient which contains the ZipKin Interceptors
-            .client(new ApacheHttpClient(httpclient))
-            // Bind Zipkin Server Span to Feign Thread
-            .requestInterceptor((t) -> brave.serverSpanThreadBinder().setCurrentSpan(serverSpan))
-            .logger(new Logger.ErrorLogger()).logLevel(Level.BASIC)
-            .decoder(new JacksonDecoder())
-            .target(AlohaService.class, url,
-                () -> Collections.singletonList("Aloha response (fallback)"));
-    }
+
+	private static String postRequest(String url, String contentType, HttpEntity entity) throws Exception {
+		HttpClientBuilder builder = HttpClientBuilder.create();
+		CloseableHttpClient client = builder.build();
+		HttpPost post = new HttpPost(url);
+		post.setHeader("Content-Type", contentType);
+		post.setEntity(entity);
+
+		HttpResponse response = client.execute(post);
+		StatusLine status = response.getStatusLine();			
+		String content = EntityUtils.toString(response.getEntity());
+		//JSONObject json = new JSONObject(content);
+
+		return content;
+	}
+
+	private static String getRequest(String url, String contentType) throws Exception {
+		HttpClientBuilder builder = HttpClientBuilder.create();
+		CloseableHttpClient client = builder.build();
+		HttpUriRequest get = new HttpGet(url);
+		get.setHeader("Content-Type", contentType);
+
+		HttpResponse response = client.execute(get);
+		StatusLine status = response.getStatusLine();			
+		String content = EntityUtils.toString(response.getEntity());
+		//JSONObject json = new JSONObject(content);
+
+		return content;
+	}
+
+	private static String putRequest(String url, String contentType) throws Exception {
+		HttpClientBuilder builder = HttpClientBuilder.create();
+		CloseableHttpClient client = builder.build();
+		HttpUriRequest put = new HttpPut(url);
+		put.setHeader("Content-Type", contentType);
+
+		HttpResponse response = client.execute(put);
+		StatusLine status = response.getStatusLine();			
+		String content = EntityUtils.toString(response.getEntity());
+		//JSONObject json = new JSONObject(content);
+
+		return content;
+	}
+
+	//    @GET
+	//    @Path("/hackathlon/chaining/{serviceName}")
+	//    @Produces("application/json")
+	//    @ApiOperation("Returns the greeting plus the next service in the chain")
+	//    public List<String> hackathlonServiceChaining(@PathParam(value = "serviceName") String yourServiceName) {
+	//        List<String> greetings = new ArrayList<>();
+	//        greetings.add(hola());
+	//        greetings.addAll(getNextService().aloha());
+	//        return greetings;
+	//    }
+	//    
+	//    @GET
+	//    @Path("/hola-chaining")
+	//    @Produces("application/json")
+	//    @ApiOperation("Returns the greeting plus the next service in the chain")
+	//    public List<String> holaChaining() {
+	//        List<String> greetings = new ArrayList<>();
+	//        greetings.add(hola());
+	//        greetings.addAll(getNextService().aloha());
+	//        return greetings;
+	//    }
+
+	//    @GET
+	//    @Path("/hola-secured")
+	//    @Produces("text/plain")
+	//    @ApiOperation("Returns a message that is only available for authenticated users")
+	//    public String holaSecured() {
+	//        // this will set the user id as userName
+	//        String userName = securityContext.getUserPrincipal().getName();
+	//
+	//        if (securityContext.getUserPrincipal() instanceof KeycloakPrincipal) {
+	//            @SuppressWarnings("unchecked")
+	//            KeycloakPrincipal<KeycloakSecurityContext> kp = (KeycloakPrincipal<KeycloakSecurityContext>) securityContext.getUserPrincipal();
+	//
+	//            // this is how to get the real userName (or rather the login name)
+	//            userName = kp.getKeycloakSecurityContext().getToken().getName();
+	//        }
+	//        return "This is a Secured resource. You are loged as " + userName;
+	//
+	//    }
+
+	//    @GET
+	//    @Path("/logout")
+	//    @Produces("text/plain")
+	//    @ApiOperation("Logout")
+	//    public String logout() throws ServletException {
+	//        servletRequest.logout();
+	//        return "Logged out";
+	//    }
+
+	/**
+	 * This is were the "magic" happens: it creates a Feign, which is a proxy interface for remote calling a REST endpoint with
+	 * Hystrix fallback support.
+	 *
+	 * @return The feign pointing to the service URL and with Hystrix fallback.
+	 */
+	private AlohaService getNextService() {
+		final String serviceName = "aloha";
+		// This stores the Original/Parent ServerSpan from ZiPkin.
+		final ServerSpan serverSpan = brave.serverSpanThreadBinder().getCurrentServerSpan();
+		final CloseableHttpClient httpclient =
+				HttpClients.custom()
+				.addInterceptorFirst(new BraveHttpRequestInterceptor(brave.clientRequestInterceptor(), new DefaultSpanNameProvider()))
+				.addInterceptorFirst(new BraveHttpResponseInterceptor(brave.clientResponseInterceptor()))
+				.build();
+		String url = String.format("http://%s:8080/", serviceName);
+		return HystrixFeign.builder()
+				// Use apache HttpClient which contains the ZipKin Interceptors
+				.client(new ApacheHttpClient(httpclient))
+				// Bind Zipkin Server Span to Feign Thread
+				.requestInterceptor((t) -> brave.serverSpanThreadBinder().setCurrentSpan(serverSpan))
+				.logger(new Logger.ErrorLogger()).logLevel(Level.BASIC)
+				.decoder(new JacksonDecoder())
+				.target(AlohaService.class, url,
+						() -> Collections.singletonList("Aloha response (fallback)"));
+	}
 
 }
