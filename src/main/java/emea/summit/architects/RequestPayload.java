@@ -9,20 +9,14 @@ import java.util.List;
  *
  */
 public class RequestPayload {
+	
 	private String teamName;
-	//private List<TeamContent> teamsContentsList;
 	private String reindeerName;
 	private HashMap<String, String> nameEmaiMap;
 
 	public RequestPayload() {
 		
 	}
-	
-//	public RequestPayload(String teamName, List<TeamContent> listOfContents) {
-//		super();
-//		this.teamName = teamName;
-//		this.teamsContentsList = listOfContents;
-//	}
 	
 	public String getTeamName() {
 		return teamName;
@@ -31,14 +25,6 @@ public class RequestPayload {
 	public void setTeamName(String teamName) {
 		this.teamName = teamName;
 	}
-
-//	public List<TeamContent> getTeamsContentsList() {
-//		return teamsContentsList;
-//	}
-//
-//	public void setTeamsContentsList(List<TeamContent> teamsContentsList) {
-//		this.teamsContentsList = teamsContentsList;
-//	}
 
 	public String getReindeerName() {
 		return reindeerName;

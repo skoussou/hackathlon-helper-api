@@ -60,6 +60,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.jboss.dmr.ModelNode;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 
@@ -69,6 +70,11 @@ import com.github.kristofa.brave.ServerSpan;
 import com.github.kristofa.brave.http.DefaultSpanNameProvider;
 import com.github.kristofa.brave.httpclient.BraveHttpRequestInterceptor;
 import com.github.kristofa.brave.httpclient.BraveHttpResponseInterceptor;
+import com.openshift.internal.restclient.model.Route;
+import com.openshift.internal.restclient.model.properties.ResourcePropertiesRegistry;
+import com.openshift.restclient.ClientBuilder;
+import com.openshift.restclient.IClient;
+import com.openshift.restclient.ResourceKind;
 
 import feign.Logger;
 import feign.Logger.Level;
@@ -86,6 +92,8 @@ import io.undertow.client.ClientRequest;
 @Path("/")
 public class HackathlonAPIResource {
 
+	
+	
 	private static final String API_PAYLOAD = "[  \n"+ 
 			"   {  \n"+ 
 			"      \"teamName\":\"\",\n"+ 
@@ -100,7 +108,7 @@ public class HackathlonAPIResource {
 	private static final String API_PAYLOAD_EXAMPLE = 
 			"[  \n"+
 					"   {  \n"+
-					"      \"teamName\":\"Team_A\",\n"+
+					"      \"teamName\":\"santas-helpers-c-team\",\n"+
 					"      \"reindeerName\":\"blixen\",\n"+
 					"      \"nameEmaiMap\":{  \n"+
 					"         \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
@@ -108,7 +116,7 @@ public class HackathlonAPIResource {
 					"      }\n"+
 					"   },\n"+
 					"   {  \n"+
-					"      \"teamName\":\"Team_B\",\n"+
+					"      \"teamName\":\"santas-helpers-a-team\",\n"+
 					"      \"reindeerName\":\"dancer\",\n"+
 					"      \"nameEmaiMap\":{  \n"+
 					"         \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
@@ -118,6 +126,8 @@ public class HackathlonAPIResource {
 					"]\n";
 
 	private static final int ZERO = 0;
+	private static final String VALID_RESPONSE = "The service is valid and Reindeers in order";
+	private static final String INVALID_RESPONSE = "The service is invalid and Reindeers are out of order \n ";
 
 	private static LinkedList<String> serviceRoutes = new LinkedList<String>(Arrays.asList("http://santas-helpers-a-team.router.default.svc.cluster.local",
 			"http://santas-helpers-b-team.router.default.svc.cluster.local",
@@ -125,6 +135,23 @@ public class HackathlonAPIResource {
 			"http://santas-helpers-d-team.router.default.svc.cluster.local",
 			"http://santas-helpers-e-team.router.default.svc.cluster.local",
 			"http://swarm-email-santas-list.router.default.svc.cluster.local"));
+	
+	private static Map<String, String> namespacesServicesMap = new HashMap<String, String>(){{
+		put("santas-helpers-a-team", "bushy-evergreen");
+		put("santas-helpers-b-team", "shinny-upatree");
+		put("santas-helpers-c-team", "wunorse-openslae");
+		put("santas-helpers-d-team", "pepper-minstix");
+		put("santas-helpers-e-team", "alabaster-snowball");
+	}};
+	
+	private static Map<String, String> servicesRouteMap = new HashMap<String, String>(){{
+		put("bushy-evergreen", "http://bushy-evergreen-santas-helpers-a-team.router.default.svc.cluster.local");
+		put("shinny-upatree", "http://shinny-upatree-santas-helpers-b-team.router.default.svc.cluster.local");
+		put("wunorse-openslae", "http://santas-helpers-c-team.router.default.svc.cluster.local");
+		put("pepper-minstix", "http://santas-helpers-e-team.router.default.svc.cluster.local");
+		put("alabaster-snowball", "http://santas-helpers-e-team.router.default.svc.cluster.local");
+	}};
+	
 
 	@Inject
 	private Brave brave;
@@ -135,29 +162,103 @@ public class HackathlonAPIResource {
 	@Context
 	private HttpServletRequest servletRequest;
 
+	private IClient createOCPClient() {
+		IClient client = new ClientBuilder("https://api.preview.openshift.com")
+			    .withUserName("admin")
+			    .withPassword("admin123")
+			    .build();
+		return client;
+	}
+	
+	private String namespaceFromService(String serviceName) {
+		
+		for(Map.Entry<String,String> entry: namespacesServicesMap.entrySet()) {
+			System.out.println(entry.getKey() + ": " + entry.getValue());
+			if (serviceName.equalsIgnoreCase(entry.getValue())); {
+				System.out.println("Namespace "+entry.getValue()+" found for Service Name "+serviceName);
+				return entry.getValue();
+			}
+		}
+//		// In Java 8 you can write
+//		namespacesServicesMap.forEach((k, v) -> System.out.println(k + ": " + v));
+		return null;
+	}
+		    
+	private List<String> emailsOfTeam(TeamPayload request) {
+		
+		String teamName = namespaceFromService(request.getServiceName());
+		
+		for(RequestPayload entry : request.getPayload()) {
+			System.out.println("if "+entry.getTeamName()+" EQUALS"+ teamName+" --> "+entry.getTeamName().equalsIgnoreCase(teamName));
+			if (entry.getTeamName().equalsIgnoreCase(teamName)) {
+				System.out.println("Team Emails"+entry.getNameEmaiMap().values());
+				return (List<String> ) entry.getNameEmaiMap().values();
+			}
+		}
+		return null;
+	}
+
 
 	@POST  
 	@Path("/service/proxy")
 	@Consumes("application/json")
 	@ApiOperation("Receives request, validates request so far, identifies next service to contact, contacts the service OR if no more sends the email to SANTA")
-	public String submit(String team, List<RequestPayload> request) {
+	public String submit(TeamPayload request) {
 		boolean PROD_ENV = System.getenv("ENVIRONMENT") != null &&  System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")? true : false;
 		
-//		if (validate(request)){
-//			// TOOD 
-//			// find the next service and send OR send email to SANTA
-//		} else {
-//			// Send a failed response to the requestors and an email.
-//		}
+		IClient ocpClient = createOCPClient();
+		
+		System.out.println("<------------------ ROUTE DETAILS ------------------>");
+		System.out.println(ocpClient.get(ResourceKind.ROUTE, namespaceFromService(request.getServiceName())));
+		System.out.println("<--------------------------------------------------->");
+//		ModelNode node = ModelNode.fromJSONString(Samples.V1_ROUTE_WO_TLS.getContentAsString());
+//        Route route = new Route(node, ocpClient, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.ROUTE));
+//		ocpClient.getResourceURI(arg0)
+		
+		System.out.println("==================REQUEST SERVICE: "+request.getServiceName()+"=======================");
+		System.out.println("PAYLOAD");
+		System.out.println(request.getPayload().toString());
+
+		if (PROD_ENV) {
+			if (validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE)){
+				System.out.println("Valid...sending to next service");
+				// TODO 
+				// find the next service and send OR send email to SANTA
+				
+//				"oc describe route "+request.getServiceName()
+//				"oc describe route bushy-evergreen"
+//				"oc describe route shinny-upatree"
+//				"oc describe route wunorse-openslae"
+//				"oc describe route pepper-minstix"
+//				"oc describe route alabaster-snowball"
+				
+			} else {
+				// Send a failed response to the requestors and an email.
+				System.out.println("INVALID_RESPONSE");
+				System.out.println("Sent to team "+namespaceFromService(request.getServiceName())+" emailing "+emailsOfTeam(request));
+				
+				try {
+					JavaMailService.generateAndSendEmail(INVALID_RESPONSE+"\n\n"+request.getPayload(), "HACKATHLON Santa Helper "+request.getServiceName()+" sent INVALID Request ", emailsOfTeam(request));
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return "Email Failed due to "+e.getMessage();
+				}
+			}
+		}
 		
 		
 //		try {
-//			JavaMailService.generateAndSendEmail(email.getContent().toString(), email.getSubject(), email.getEmailAddresses());
-//		} catch (MessagingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return "Email Failed due to "+e.getMessage();
-//		}
+//		JavaMailService.generateAndSendEmail(email.getContent().toString(), email.getSubject(), email.getEmailAddresses());
+//	} catch (MessagingException e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//		return "Email Failed due to "+e.getMessage();
+//	}
+		
+		System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+
+		
 		return "Email was submitted successfully";
 	}
 	
@@ -188,11 +289,11 @@ public class HackathlonAPIResource {
 		boolean ordered = inOrder(request.iterator(), null);
 
 		if (!ordered) {
-			return "The service is invalid and Reindeers are out of order \n "+request.toString();
+			return INVALID_RESPONSE+request.toString();
 
 		}
 
-		return "The service is valid and Reindeers in order";
+		return VALID_RESPONSE;
 	}
 
 	@GET
