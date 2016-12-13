@@ -151,15 +151,11 @@ public class HackathlonAPIResource {
 	
 	private static Map<String, String> serviceENVVariableMap = new HashMap<String, String>(){{
 		put("proxy-api", "PROXY_API");
-//		put("santas-helpers-b-team", "shinny-upatree");
-//		put("santas-helpers-c-team", "wunorse-openslae");
-//		put("santas-helpers-d-team", "pepper-minstix");
-//		put("santas-helpers-e-team", "alabaster-snowball");
-//		put("bushy-evergreen", "BUSHY_EVERGREEN");
-//		put("shinny-upatree", "SHINY_UPATREE");
-//		put("wunorse-openslae", "WUNORSE_OPENSLAE");
-//		put("pepper-minstix", "PEPPER_MINSTIX");
-//		put("alabaster-snowball", "ALABASTER_SNOWBALL");
+		put("bushy-evergreen", "BUSHY_EVERGREEN");
+		put("shinny-upatree", "SHINY_UPATREE");
+		put("wunorse-openslae", "WUNORSE_OPENSLAE");
+		put("pepper-minstix", "PEPPER_MINSTIX");
+		put("alabaster-snowball", "ALABASTER_SNOWBALL");
 	}};
 	
 	private static Map<String, String> servicesRouteMap = new HashMap<String, String>(){{
@@ -244,7 +240,19 @@ public class HackathlonAPIResource {
 		String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 		String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 		
-		System.out.println("Would call \n POST   https://"+host+":"+port);
+		String Ahost = System.getenv("bushy-evergreen"+"_SERVICE_HOST");
+		String Aport = System.getenv("bushy-evergreen"+"_SERVICE_PORT");
+		
+		String Bhost = System.getenv("alabaster-snowball"+"_SERVICE_HOST");
+		String Bport = System.getenv("alabaster-snowball"+"_SERVICE_PORT");
+		
+		System.out.println("Would call [proxy-api] \n POST   https://"+host+":"+port);
+		System.out.println("Would call [bushy-evergreen] \n POST   https://"+Ahost+":"+Aport);
+		System.out.println("Would call [alabaster-snowball] \n POST   https://"+Bhost+":"+Bport);
+		
+		httpCall("POST", "https://"+Ahost+":"+Aport+"/api/test", request.toString());
+		httpCall("POST", "https://"+host+":"+port+"/api/test", request.toString());
+
 
 		if (PROD_ENV) {
 			if (validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE)){
