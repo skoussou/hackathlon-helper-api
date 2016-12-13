@@ -149,6 +149,19 @@ public class HackathlonAPIResource {
 		put("santas-helpers-e-team", "test-milan");
 	}};
 	
+	private static Map<String, String> serviceENVVariableMap = new HashMap<String, String>(){{
+		put("proxy-api", "PROXY_API");
+//		put("santas-helpers-b-team", "shinny-upatree");
+//		put("santas-helpers-c-team", "wunorse-openslae");
+//		put("santas-helpers-d-team", "pepper-minstix");
+//		put("santas-helpers-e-team", "alabaster-snowball");
+//		put("bushy-evergreen", "BUSHY_EVERGREEN");
+//		put("shinny-upatree", "SHINY_UPATREE");
+//		put("wunorse-openslae", "WUNORSE_OPENSLAE");
+//		put("pepper-minstix", "PEPPER_MINSTIX");
+//		put("alabaster-snowball", "ALABASTER_SNOWBALL");
+	}};
+	
 	private static Map<String, String> servicesRouteMap = new HashMap<String, String>(){{
 		put("bushy-evergreen", "http://bushy-evergreen-santas-helpers-a-team.router.default.svc.cluster.local");
 		put("shinny-upatree", "http://shinny-upatree-santas-helpers-b-team.router.default.svc.cluster.local");
@@ -168,7 +181,8 @@ public class HackathlonAPIResource {
 	private HttpServletRequest servletRequest;
 
 	private IClient createOCPClient() {
-		IClient client = new ClientBuilder("https://api.preview.openshift.com")
+		//IClient client = new ClientBuilder("https://api.preview.openshift.com")
+		IClient client = new ClientBuilder("https://35.156.133.70:8443")
 				.usingToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg")
 //			    .withUserName("admin")
 //			    .withPassword("admin123")
@@ -214,11 +228,11 @@ public class HackathlonAPIResource {
 	public String submit(TeamPayload request) {
 		boolean PROD_ENV = System.getenv("ENVIRONMENT") != null &&  System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")? true : false;
 		
-		IClient ocpClient = createOCPClient();
+//		IClient ocpClient = createOCPClient();
 		
-		System.out.println("<------------------ ROUTE DETAILS ------------------>");
-		System.out.println(ocpClient.get(ResourceKind.ROUTE, namespaceFromService(request.getServiceName())));
-		System.out.println("<--------------------------------------------------->");
+//		System.out.println("<------------------ ROUTE DETAILS ------------------>");
+//		System.out.println(ocpClient.get(ResourceKind.ROUTE, namespaceFromService(request.getServiceName())));
+//		System.out.println("<--------------------------------------------------->");
 //		ModelNode node = ModelNode.fromJSONString(Samples.V1_ROUTE_WO_TLS.getContentAsString());
 //        Route route = new Route(node, ocpClient, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.ROUTE));
 //		ocpClient.getResourceURI(arg0)
@@ -226,6 +240,11 @@ public class HackathlonAPIResource {
 		System.out.println("==================REQUEST SERVICE: "+request.getServiceName()+"=======================");
 		System.out.println("PAYLOAD");
 		System.out.println(request.getPayload().toString());
+		
+		String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
+		String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
+		
+		System.out.println("Would call \n POST   https://"+host+":"+port);
 
 		if (PROD_ENV) {
 			if (validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE)){
@@ -240,10 +259,19 @@ public class HackathlonAPIResource {
 //				"oc describe route pepper-minstix"
 //				"oc describe route alabaster-snowball"
 				
+//				String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
+//				String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
+				
+				System.out.println("ABOUT To call\n POST   https://"+host+":"+port);
+				System.out.println(request.toString());
+				//httpCall("POST", "https://"+host+":"+port, request.toString());
+				
 			} else {
 				// Send a failed response to the requestors and an email.
 				System.out.println("INVALID_RESPONSE");
 				System.out.println("Sent to team "+namespaceFromService(request.getServiceName())+" emailing "+emailsOfTeam(request));
+				
+
 				
 				try {
 					JavaMailService.generateAndSendEmail(INVALID_RESPONSE+"\n\n"+request.getPayload(), "HACKATHLON Santa Helper "+request.getServiceName()+" sent INVALID Request ", emailsOfTeam(request));
@@ -269,6 +297,63 @@ public class HackathlonAPIResource {
 		
 		return "Email was submitted successfully";
 	}
+	
+	private String httpCall(String httpMethod, String serviceURL, String data){
+		String result = "Not valid request for \n"+
+				"HTTP METHOD" + httpMethod +"\n"+
+				"URL" +serviceURL + "\n"+
+				"Content" + data;
+
+		System.out.println("<===================== Calling External Service  ======================>");
+		System.out.println("     HTTP METHOD : "+httpMethod);
+		System.out.println("     URL         : "+serviceURL);
+		System.out.println("     Content     : "+data);
+		System.out.println("<======================================================================>");
+
+		if (httpMethod != null || httpMethod.equals("GET") || httpMethod.equals("POST") || httpMethod.equals("PUT")) {
+
+			try {
+				HttpClientBuilder builder = HttpClientBuilder.create();
+				CloseableHttpClient client = builder.build();
+
+				//HttpUriRequest request = new HttpGet(serviceURL+"api/hackathlon/info");
+				HttpUriRequest request;
+				if (httpMethod.equalsIgnoreCase("GET")){
+					result = getRequest(serviceURL, "application/json");
+				} else if (httpMethod.equalsIgnoreCase("POST")) {
+					// eg. http://www.programcreek.com/java-api-examples/org.apache.http.entity.StringEntity
+					StringEntity content = new StringEntity(data,"UTF-8");
+					result = postRequest(serviceURL, "application/json", content);
+				} else {
+					result = putRequest(serviceURL, "application/json");
+				}
+
+				System.out.println("<=================== RESPONSE ====================> ");
+				System.out.println("    "+result); 
+				System.out.println("<=======================================> ");
+
+			} catch (Exception e) {
+				System.out.println("****************************************************************");
+				//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+				System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
+				System.out.println(e.getMessage());
+				System.out.println("****************************************************************");
+				return result;
+			}
+			System.out.println("****************************************************************");
+			//System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+			System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL);
+			System.out.println("****************************************************************");
+			return result;
+
+		}
+		System.out.println("****************************************************************");
+		//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
+		System.out.println("****************************************************************");
+		return result;
+	}
+	
 	
 	@POST  
 	@Path("/service/email-santa")
@@ -368,23 +453,24 @@ public class HackathlonAPIResource {
 	//    }
 	//    
 	//    @POST  
-	@PUT
-	@Path("/email-santa/{emailContent}")
-	@Consumes("application/json")
-	@ApiOperation("Sends the email to Santa with the list")
-	public String sendEmailNotification(@PathParam(value = "emailContent") String emailContent) {
+//	@PUT
+//	@Path("/email-santa/{emailContent}")
+//	@Consumes("application/json")
+//	@ApiOperation("Sends the email to Santa with the list")
+//	public String sendEmailNotification(@PathParam(value = "emailContent") String emailContent) {
+//
+//		// TODO - Read via PARAM so that each team will have to go and declare their own property
+//		try {
+//			JavaMailService.generateAndSendEmail(emailContent);
+//		} catch (MessagingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return "Email Failed due to "+e.getMessage();
+//		}
+//		return "Email was submitted successfully";
+//	}
 
-		// TODO - Read via PARAM so that each team will have to go and declare their own property
-		try {
-			JavaMailService.generateAndSendEmail(emailContent);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "Email Failed due to "+e.getMessage();
-		}
-		return "Email was submitted successfully";
-	}
-
+	
 	@POST
 	@Path("/other-service")
 	@Consumes("application/json")
