@@ -327,6 +327,9 @@ public class HackathlonAPIResource {
 			String portReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 			//System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 			//if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("santas-helpers-e-team")) {
+			
+			System.out.println("Validation Statement: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
+			
 			if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("test-milans")) {
 				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/service/email-santa] \n POST   http://"+hostReal+":"+portReal+"/service/email-santa");
 			} else {
@@ -344,11 +347,11 @@ public class HackathlonAPIResource {
 //		e.printStackTrace();
 //		return "Email Failed due to "+e.getMessage();
 //	}
-		System.out.println("Request from ["+request.getServiceName()+"] submitted successfully to" +serviceENVVariableMap.get(request.getServiceName()));
+		System.out.println("Request from ["+request.getServiceName()+"] submitted successfully to " +serviceENVVariableMap.get(request.getServiceName())+"]");
 		System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 		
-		return "Request from ["+request.getServiceName()+"] submitted successfully to" +serviceENVVariableMap.get(request.getServiceName());
+		return "Request from ["+request.getServiceName()+"] submitted successfully to [" +serviceENVVariableMap.get(request.getServiceName()+"]");
 	}
 	
 	private String httpCall(String httpMethod, String serviceURL, String data){
