@@ -137,11 +137,16 @@ public class HackathlonAPIResource {
 			"http://swarm-email-santas-list.router.default.svc.cluster.local"));
 	
 	private static Map<String, String> namespacesServicesMap = new HashMap<String, String>(){{
-		put("santas-helpers-a-team", "bushy-evergreen");
-		put("santas-helpers-b-team", "shinny-upatree");
-		put("santas-helpers-c-team", "wunorse-openslae");
-		put("santas-helpers-d-team", "pepper-minstix");
-		put("santas-helpers-e-team", "alabaster-snowball");
+//		put("santas-helpers-a-team", "bushy-evergreen");
+//		put("santas-helpers-b-team", "shinny-upatree");
+//		put("santas-helpers-c-team", "wunorse-openslae");
+//		put("santas-helpers-d-team", "pepper-minstix");
+//		put("santas-helpers-e-team", "alabaster-snowball");
+		put("santas-helpers-a-team", "test-milan");
+		put("santas-helpers-b-team", "test-milan");
+		put("santas-helpers-c-team", "test-milan");
+		put("santas-helpers-d-team", "test-milan");
+		put("santas-helpers-e-team", "test-milan");
 	}};
 	
 	private static Map<String, String> servicesRouteMap = new HashMap<String, String>(){{
@@ -167,6 +172,8 @@ public class HackathlonAPIResource {
 			    .withUserName("admin")
 			    .withPassword("admin123")
 			    .build();
+		client.getAuthorizationContext().setToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg");
+	
 		return client;
 	}
 	
