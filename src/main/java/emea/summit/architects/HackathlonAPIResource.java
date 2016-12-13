@@ -258,119 +258,96 @@ public class HackathlonAPIResource {
 		//System.out.println(request.getPayload().toString());
 		System.out.println(jsonInString);
 		
-		String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
-		String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
-		
-		String Ahost = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_HOST");
-		String Aport = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_PORT");
-		
-		String Bhost = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_HOST");
-		String Bport = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_PORT");
-		
-		String Chost = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_HOST");
-		String Cport = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_PORT");
-		
-		String Dhost = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_HOST");
-		String Dport = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_PORT");
-		
-		String Ehost = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_HOST");
-		String Eport = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_PORT");	
-		
-		String Fhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
-		String Fport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
-		
-//		System.out.println("Next call ["+serviceENVVariableMap.get(request.getServiceName())+"] \n POST   http://"+host+":"+port);
-
-
-		System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
-		httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
-		
-		System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
-		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
-		
-		System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
-		httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", request.toString());
-		
-		System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
-		httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", request.toString());
-
-		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
-		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
-		
-		System.out.println("Would call ["+serviceENVVariableMap.get("alabaster-snowball")+"/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
-		EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
-		
-		mapper = new ObjectMapper();
-		String jsonEmailString = null;
-		try {
-			//Convert object to JSON string
-			jsonEmailString = mapper.writeValueAsString(email);
-
-			//Convert object to JSON string and pretty print
-			jsonEmailString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(email);
-			System.out.println("JSON REQUEST "+jsonEmailString);
-
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Failed to transform to JSON "+e.getMessage();
-		}
-		
-//		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/service/email-santa", jsonEmailString);
-		System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
-		sendEmailNotification(email);
-		
-		
 
 		
 		if (PROD_ENV) {
-			if (validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE)){
-				System.out.println("Valid...sending to next service");
+			    
+				System.out.println("Payload Valid Pass: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
 				// TODO 
 				// find the next service and send OR send email to SANTA
+
 				
-//				"oc describe route "+request.getServiceName()
-//				"oc describe route bushy-evergreen"
-//				"oc describe route shinny-upatree"
-//				"oc describe route wunorse-openslae"
-//				"oc describe route pepper-minstix"
-//				"oc describe route alabaster-snowball"
-				
-//				String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
-//				String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
+				String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
+				String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 				
 				System.out.println("ABOUT To call\n POST   https://"+host+":"+port);
 				System.out.println(request.toString());
 				//httpCall("POST", "https://"+host+":"+port, request.toString());
 				
-			} else {
-				// Send a failed response to the requestors and an email.
-				System.out.println("INVALID_RESPONSE");
-				System.out.println("Sent to team "+namespaceFromService(request.getServiceName())+" emailing "+emailsOfTeam(request));
-				
 
-				
-				try {
-					JavaMailService.generateAndSendEmail(INVALID_RESPONSE+"\n\n"+request.getPayload(), "HACKATHLON Santa Helper "+request.getServiceName()+" sent INVALID Request ", emailsOfTeam(request));
-				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return "Email Failed due to "+e.getMessage();
-				}
-			}
 		} else {
-			String hostReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
-			String portReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
+//			String hostReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
+//			String portReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 			//System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 			//if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("santas-helpers-e-team")) {
 			
-			System.out.println("Validation Statement: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
+			System.out.println("Payload Validation Statement: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
 			
-			if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("test-milans")) {
-				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/service/email-santa] \n POST   http://"+hostReal+":"+portReal+"/service/email-santa");
-			} else {
-				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/] http://"+hostReal+":"+portReal);
+			String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
+			String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
+			
+			String Ahost = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_HOST");
+			String Aport = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_PORT");
+			
+			String Bhost = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_HOST");
+			String Bport = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_PORT");
+			
+			String Chost = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_HOST");
+			String Cport = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_PORT");
+			
+			String Dhost = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_HOST");
+			String Dport = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_PORT");
+			
+			String Ehost = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_HOST");
+			String Eport = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_PORT");	
+			
+			String Fhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
+			String Fport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
+			
+//			System.out.println("Next call ["+serviceENVVariableMap.get(request.getServiceName())+"] \n POST   http://"+host+":"+port);
+
+			System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
+			httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
+			
+			System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
+			httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
+			
+			System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
+			httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", request.toString());
+			
+			System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
+			httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", request.toString());
+
+			System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
+			httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
+			
+			System.out.println("Would call ["+serviceENVVariableMap.get("alabaster-snowball")+"/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
+			EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
+			
+			mapper = new ObjectMapper();
+			String jsonEmailString = null;
+			try {
+				//Convert object to JSON string
+				jsonEmailString = mapper.writeValueAsString(email);
+
+				//Convert object to JSON string and pretty print
+				jsonEmailString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(email);
+				System.out.println("JSON REQUEST "+jsonEmailString);
+
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				return "Failed to transform to JSON "+e.getMessage();
 			}
+			
+			System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
+			sendEmailNotification(email);
+			
+//			if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("test-milans")) {
+//				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/service/email-santa] \n POST   http://"+hostReal+":"+portReal+"/service/email-santa");
+//			} else {
+//				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/] http://"+hostReal+":"+portReal);
+//			}
 			
 			
 		}
