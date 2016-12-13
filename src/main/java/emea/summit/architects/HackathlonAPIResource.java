@@ -275,8 +275,9 @@ public class HackathlonAPIResource {
 		String Fhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
 		String Fport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
 		
-		System.out.println("Would call [proxy-api] \n POST   http://"+host+":"+port);
-		
+		System.out.println("Would call ["+serviceENVVariableMap.get(request.getServiceName())+"] \n POST   http://"+host+":"+port);
+		System.out.println("Would call ["+serviceENVVariableMap.get("NONE")+"] \n POST   http://"+Ahost+":"+Aport);
+
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonInString = null;
 		try {
