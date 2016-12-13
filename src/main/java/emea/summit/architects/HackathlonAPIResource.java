@@ -251,7 +251,7 @@ public class HackathlonAPIResource {
 		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Bhost+":"+Bport);
 		
 		httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", request.toString());
-		httpCall("POST", "http://"+host+":"+port+"/api/test", request.toString());
+		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());
 
 
 		if (PROD_ENV) {
