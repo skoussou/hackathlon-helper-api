@@ -224,6 +224,15 @@ public class HackathlonAPIResource {
 		return null;
 	}
 
+	@POST  
+	@Path("/test")
+	@Consumes("application/json")
+	@ApiOperation("TEST PROXYL")
+	public String test() {
+
+		System.out.println("Calling  PROXYL-TST successfully");
+		return "Calling  PROXYL-TST successfully";
+	}
 
 	@POST  
 	@Path("/service/proxy")
@@ -286,21 +295,23 @@ public class HackathlonAPIResource {
 
 		System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
 		httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
-		
-		System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
-		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
-		
-		System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
-		httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", request.toString());
-		
-		System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
-		httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", request.toString());
+//		httpCall("POST", "http://"+"localhost"+":"+8080+"/api/test", jsonInString);
 
-		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
-		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
+		
+//		System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
+//		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
+//		
+//		System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
+//		httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", request.toString());
+//		
+//		System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
+//		httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", request.toString());
+//
+//		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
+//		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
 		
 		System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
-		EmailPayload email = new EmailPayload(null, "SUCCESS", null);
+		EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
 		
 		mapper = new ObjectMapper();
 		String jsonEmailString = null;
@@ -319,6 +330,8 @@ public class HackathlonAPIResource {
 		}
 		
 		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/service/email-santa", jsonEmailString);
+//		httpCall("POST", "http://"+"localhost"+":"+8080+"/api/service/email-santa", jsonEmailString);
+
 		
 		
 
@@ -452,7 +465,6 @@ public class HackathlonAPIResource {
 	@Consumes("application/json")
 	@ApiOperation("Sends the email to a list of participants, with subject and payload")
 	public String sendEmailNotification(EmailPayload email) {
-
 		try {
 			JavaMailService.generateAndSendEmail(email.getContent().toString(), email.getSubject(), email.getEmailAddresses());
 		} catch (MessagingException e) {
