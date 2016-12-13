@@ -169,10 +169,11 @@ public class HackathlonAPIResource {
 
 	private IClient createOCPClient() {
 		IClient client = new ClientBuilder("https://api.preview.openshift.com")
-			    .withUserName("admin")
-			    .withPassword("admin123")
+				.usingToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg")
+//			    .withUserName("admin")
+//			    .withPassword("admin123")
 			    .build();
-		client.getAuthorizationContext().setToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg");
+		//client.getAuthorizationContext().setToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg");
 	
 		return client;
 	}
