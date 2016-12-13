@@ -225,16 +225,6 @@ public class HackathlonAPIResource {
 	}
 
 	@POST  
-	@Path("/test")
-	@Consumes("application/json")
-	@ApiOperation("TEST PROXYL")
-	public String test() {
-
-		System.out.println("Calling  PROXYL-TST successfully");
-		return "Calling  PROXYL-TST successfully";
-	}
-
-	@POST  
 	@Path("/service/proxy")
 	@Consumes("application/json")
 	@ApiOperation("Receives request, validates request so far, identifies next service to contact, contacts the service OR if no more sends the email to SANTA")
@@ -246,13 +236,27 @@ public class HackathlonAPIResource {
 //		System.out.println("<------------------ ROUTE DETAILS ------------------>");
 //		System.out.println(ocpClient.get(ResourceKind.ROUTE, namespaceFromService(request.getServiceName())));
 //		System.out.println("<--------------------------------------------------->");
-//		ModelNode node = ModelNode.fromJSONString(Samples.V1_ROUTE_WO_TLS.getContentAsString());
-//        Route route = new Route(node, ocpClient, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.ROUTE));
-//		ocpClient.getResourceURI(arg0)
+
 		
 		System.out.println("==================REQUESTING SERVICE: "+request.getServiceName()+"=======================");
 		System.out.println("PAYLOAD");
-		System.out.println(request.getPayload().toString());
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonInString = null;
+		try {
+			//Convert object to JSON string
+			//jsonInString = mapper.writeValueAsString(request);
+
+			//Convert object to JSON string and pretty print
+			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
+			System.out.println("JSON REQUEST "+jsonInString);
+
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Failed to transform to JSON "+e.getMessage();
+		}
+		//System.out.println(request.getPayload().toString());
+		System.out.println(jsonInString);
 		
 		String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 		String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
@@ -275,41 +279,23 @@ public class HackathlonAPIResource {
 		String Fhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
 		String Fport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
 		
-		System.out.println("Would call ["+serviceENVVariableMap.get(request.getServiceName())+"] \n POST   http://"+host+":"+port);
-		System.out.println("Would call ["+serviceENVVariableMap.get("NONE")+"] \n POST   http://"+Ahost+":"+Aport);
+//		System.out.println("Next call ["+serviceENVVariableMap.get(request.getServiceName())+"] \n POST   http://"+host+":"+port);
 
-		ObjectMapper mapper = new ObjectMapper();
-		String jsonInString = null;
-		try {
-			//Convert object to JSON string
-			jsonInString = mapper.writeValueAsString(request);
-
-			//Convert object to JSON string and pretty print
-			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
-			System.out.println("JSON REQUEST "+jsonInString);
-
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Failed to transform to JSON "+e.getMessage();
-		}
 
 		System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
 		httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
-//		httpCall("POST", "http://"+"localhost"+":"+8080+"/api/test", jsonInString);
-
 		
-//		System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
-//		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
-//		
-//		System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
-//		httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", request.toString());
-//		
-//		System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
-//		httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", request.toString());
-//
-//		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
-//		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
+		System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
+		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
+		
+		System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
+		httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", request.toString());
+		
+		System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
+		httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", request.toString());
+
+		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
+		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
 		
 		System.out.println("Would call ["+serviceENVVariableMap.get("alabaster-snowball")+"/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 		EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
@@ -330,11 +316,9 @@ public class HackathlonAPIResource {
 			return "Failed to transform to JSON "+e.getMessage();
 		}
 		
-		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/service/email-santa", jsonEmailString);
+//		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/service/email-santa", jsonEmailString);
 		System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
 		sendEmailNotification(email);
-//		httpCall("POST", "http://"+"localhost"+":"+8080+"/api/service/email-santa", jsonEmailString);
-
 		
 		
 
@@ -516,34 +500,44 @@ public class HackathlonAPIResource {
 		return info;
 	}
 
-	@POST
-	@Path("/next-service")
-	@Consumes("application/json")
-	@Produces("application/json")
-	@ApiOperation("Returns the URL of the next MSA in the teams of Santa Helpers to be used to communicate with")
-	public String nextService(String yourServiceName) {
-
-		System.out.println("Current Service ("+yourServiceName+")");
-
-		// TODO - Read via PARAM so that each team will have to go and declare their own property
-		if (yourServiceName != null) {
-			System.out.println("Current Service ("+yourServiceName+") NOT NULL ");
-			return getNextServiceRouteURL(yourServiceName);
-			//    		if (yourServiceName.equalsIgnoreCase("santas-helpers-a-team")) {
-			//    			return "http://santas-helpers-b-team.router.default.svc.cluster.local";
-			//    		}else if (yourServiceName.equalsIgnoreCase("santas-helpers-b-team")) {
-			//    			return "http://santas-helpers-c-team.router.default.svc.cluster.local";
-			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-c-team")) {
-			//    			return "http://santas-helpers-d-team.router.default.svc.cluster.local";
-			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-d-team")) {
-			//    			return "http://santas-helpers-e-team.router.default.svc.cluster.local";
-			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-e-team")) {
-			//    			return "http://swarm-email-santas-list.router.default.svc.cluster.local";
-			//
-			//    		}
-		}
-		return "ERROR: No matching next service for the provided Santa Team";
-	}
+//	@POST  
+//	@Path("/test")
+//	@Consumes("application/json")
+//	@ApiOperation("TEST PROXYL")
+//	public String test() {
+//
+//		System.out.println("Calling  PROXYL-TST successfully");
+//		return "Calling  PROXYL-TST successfully";
+//	}
+	
+//	@POST
+//	@Path("/next-service")
+//	@Consumes("application/json")
+//	@Produces("application/json")
+//	@ApiOperation("Returns the URL of the next MSA in the teams of Santa Helpers to be used to communicate with")
+//	public String nextService(String yourServiceName) {
+//
+//		System.out.println("Current Service ("+yourServiceName+")");
+//
+//		// TODO - Read via PARAM so that each team will have to go and declare their own property
+//		if (yourServiceName != null) {
+//			System.out.println("Current Service ("+yourServiceName+") NOT NULL ");
+//			return getNextServiceRouteURL(yourServiceName);
+//			//    		if (yourServiceName.equalsIgnoreCase("santas-helpers-a-team")) {
+//			//    			return "http://santas-helpers-b-team.router.default.svc.cluster.local";
+//			//    		}else if (yourServiceName.equalsIgnoreCase("santas-helpers-b-team")) {
+//			//    			return "http://santas-helpers-c-team.router.default.svc.cluster.local";
+//			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-c-team")) {
+//			//    			return "http://santas-helpers-d-team.router.default.svc.cluster.local";
+//			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-d-team")) {
+//			//    			return "http://santas-helpers-e-team.router.default.svc.cluster.local";
+//			//    		} else if (yourServiceName.equalsIgnoreCase("santas-helpers-e-team")) {
+//			//    			return "http://swarm-email-santas-list.router.default.svc.cluster.local";
+//			//
+//			//    		}
+//		}
+//		return "ERROR: No matching next service for the provided Santa Team";
+//	}
 
 	//    @POST
 	//    @Path("/service/register")
@@ -578,80 +572,80 @@ public class HackathlonAPIResource {
 //	}
 
 	
-	@POST
-	@Path("/other-service")
-	@Consumes("application/json")
-	@Produces("application/json")
-	@ApiOperation("Call service to service")
-	public String callOtherService(String jsonRequest) {
-
-		ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
-		PostServiceBean requestContent = null;
-		try {
-			requestContent = mapper.readValue(jsonRequest, PostServiceBean.class );
-		} catch (IOException e) {
-			System.out.println("Request was invalid cause: "+e.getMessage());
-			return "Request was invalid cause: "+e.getMessage();
-		}
-
-		String httpMethod = requestContent.getHttpMethod();
-		String serviceURL =  requestContent.getUrl();
-		String data = requestContent.getContent();
-
-		String result = "Not valid request for \n"+
-				"HTTP METHOD" + httpMethod +"\n"+
-				"URL" +serviceURL + "\n"+
-				"Content" + data;
-
-		System.out.println("<===================== Calling External Service  ======================>");
-		System.out.println("     HTTP METHOD : "+httpMethod);
-		System.out.println("     URL         : "+serviceURL);
-		System.out.println("     Content     : "+data);
-		System.out.println("<======================================================================>");
-
-		if (httpMethod != null || httpMethod.equals("GET") || httpMethod.equals("POST") || httpMethod.equals("PUT")) {
-
-			try {
-				HttpClientBuilder builder = HttpClientBuilder.create();
-				CloseableHttpClient client = builder.build();
-
-				//HttpUriRequest request = new HttpGet(serviceURL+"api/hackathlon/info");
-				HttpUriRequest request;
-				if (httpMethod.equalsIgnoreCase("GET")){
-					result = getRequest(serviceURL, "application/json");
-				} else if (httpMethod.equalsIgnoreCase("POST")) {
-					// eg. http://www.programcreek.com/java-api-examples/org.apache.http.entity.StringEntity
-					StringEntity content = new StringEntity(data,"UTF-8");
-					result = postRequest(serviceURL, "application/json", content);
-				} else {
-					result = putRequest(serviceURL, "application/json");
-				}
-
-				System.out.println("<=================== RESPONSE ====================> ");
-				System.out.println("    "+result); 
-				System.out.println("<=======================================> ");
-
-			} catch (Exception e) {
-				System.out.println("****************************************************************");
-				//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-				System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
-				System.out.println(e.getMessage());
-				System.out.println("****************************************************************");
-				return result;
-			}
-			System.out.println("****************************************************************");
-			//System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-			System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL);
-			System.out.println("****************************************************************");
-			return result;
-
-		}
-		System.out.println("****************************************************************");
-		//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
-		System.out.println("****************************************************************");
-		return result;
-	}
+//	@POST
+//	@Path("/other-service")
+//	@Consumes("application/json")
+//	@Produces("application/json")
+//	@ApiOperation("Call service to service")
+//	public String callOtherService(String jsonRequest) {
+//
+//		ObjectMapper mapper = new ObjectMapper(); //Jackson's JSON marshaller
+//		PostServiceBean requestContent = null;
+//		try {
+//			requestContent = mapper.readValue(jsonRequest, PostServiceBean.class );
+//		} catch (IOException e) {
+//			System.out.println("Request was invalid cause: "+e.getMessage());
+//			return "Request was invalid cause: "+e.getMessage();
+//		}
+//
+//		String httpMethod = requestContent.getHttpMethod();
+//		String serviceURL =  requestContent.getUrl();
+//		String data = requestContent.getContent();
+//
+//		String result = "Not valid request for \n"+
+//				"HTTP METHOD" + httpMethod +"\n"+
+//				"URL" +serviceURL + "\n"+
+//				"Content" + data;
+//
+//		System.out.println("<===================== Calling External Service  ======================>");
+//		System.out.println("     HTTP METHOD : "+httpMethod);
+//		System.out.println("     URL         : "+serviceURL);
+//		System.out.println("     Content     : "+data);
+//		System.out.println("<======================================================================>");
+//
+//		if (httpMethod != null || httpMethod.equals("GET") || httpMethod.equals("POST") || httpMethod.equals("PUT")) {
+//
+//			try {
+//				HttpClientBuilder builder = HttpClientBuilder.create();
+//				CloseableHttpClient client = builder.build();
+//
+//				//HttpUriRequest request = new HttpGet(serviceURL+"api/hackathlon/info");
+//				HttpUriRequest request;
+//				if (httpMethod.equalsIgnoreCase("GET")){
+//					result = getRequest(serviceURL, "application/json");
+//				} else if (httpMethod.equalsIgnoreCase("POST")) {
+//					// eg. http://www.programcreek.com/java-api-examples/org.apache.http.entity.StringEntity
+//					StringEntity content = new StringEntity(data,"UTF-8");
+//					result = postRequest(serviceURL, "application/json", content);
+//				} else {
+//					result = putRequest(serviceURL, "application/json");
+//				}
+//
+//				System.out.println("<=================== RESPONSE ====================> ");
+//				System.out.println("    "+result); 
+//				System.out.println("<=======================================> ");
+//
+//			} catch (Exception e) {
+//				System.out.println("****************************************************************");
+//				//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+//				System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
+//				System.out.println(e.getMessage());
+//				System.out.println("****************************************************************");
+//				return result;
+//			}
+//			System.out.println("****************************************************************");
+//			//System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+//			System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL);
+//			System.out.println("****************************************************************");
+//			return result;
+//
+//		}
+//		System.out.println("****************************************************************");
+//		//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
+//		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
+//		System.out.println("****************************************************************");
+//		return result;
+//	}
 
 
 	private boolean inOrder(Iterator<RequestPayload> reindeersIt, String reindeer) {
