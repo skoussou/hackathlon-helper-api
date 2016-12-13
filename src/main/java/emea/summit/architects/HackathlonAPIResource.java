@@ -250,8 +250,8 @@ public class HackathlonAPIResource {
 		System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
 		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Bhost+":"+Bport);
 		
-		httpCall("POST", "https://"+Ahost+":"+Aport+"/api/test", request.toString());
-		httpCall("POST", "https://"+host+":"+port+"/api/test", request.toString());
+		httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", request.toString());
+		httpCall("POST", "http://"+host+":"+port+"/api/test", request.toString());
 
 
 		if (PROD_ENV) {
