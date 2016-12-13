@@ -246,9 +246,9 @@ public class HackathlonAPIResource {
 		String Bhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
 		String Bport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
 		
-		System.out.println("Would call [proxy-api] \n POST   https://"+host+":"+port);
-		System.out.println("Would call [bushy-evergreen] \n POST   https://"+Ahost+":"+Aport);
-		System.out.println("Would call [alabaster-snowball] \n POST   https://"+Bhost+":"+Bport);
+		System.out.println("Would call [proxy-api] \n POST   http://"+host+":"+port);
+		System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
+		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Bhost+":"+Bport);
 		
 		httpCall("POST", "https://"+Ahost+":"+Aport+"/api/test", request.toString());
 		httpCall("POST", "https://"+host+":"+port+"/api/test", request.toString());
