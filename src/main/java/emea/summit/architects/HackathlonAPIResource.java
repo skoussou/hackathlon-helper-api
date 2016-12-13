@@ -239,13 +239,10 @@ public class HackathlonAPIResource {
 
 		
 		System.out.println("==================REQUESTING SERVICE: "+request.getServiceName()+"=======================");
-		System.out.println("PAYLOAD");
+		System.out.println("PAYLOAD PROVIDED");
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonInString = null;
 		try {
-			//Convert object to JSON string
-			//jsonInString = mapper.writeValueAsString(request);
-
 			//Convert object to JSON string and pretty print
 			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
 			System.out.println("JSON REQUEST "+jsonInString);
@@ -255,7 +252,6 @@ public class HackathlonAPIResource {
 			e.printStackTrace();
 			return "Failed to transform to JSON "+e.getMessage();
 		}
-		//System.out.println(request.getPayload().toString());
 		System.out.println(jsonInString);
 		
 
@@ -270,11 +266,33 @@ public class HackathlonAPIResource {
 				String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 				String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 				
-				System.out.println("ABOUT To call\n POST   https://"+host+":"+port);
-				System.out.println(request.toString());
-				//httpCall("POST", "https://"+host+":"+port, request.toString());
-				
+				if (!request.getServiceName().equalsIgnoreCase("alabaster-snowball")) {
+				System.out.println("Next call Service ["+serviceENVVariableMap.get(request.getServiceName())+"] at https://"+host+":"+port);
+				httpCall("POST", "https://"+host+":"+port, request.toString());
+				} else {
+					System.out.println("Next Notify Santa via Email");
+					EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
+					
+					mapper = new ObjectMapper();
+					String jsonEmailString = null;
+					try {
+						//Convert object to JSON string
+						jsonEmailString = mapper.writeValueAsString(email);
 
+						//Convert object to JSON string and pretty print
+						jsonEmailString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(email);
+						System.out.println("JSON REQUEST "+jsonEmailString);
+
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						return "Failed to transform to JSON "+e.getMessage();
+					}
+					
+					System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
+					sendEmailNotification(email);
+				}
+				
 		} else {
 //			String hostReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 //			String portReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
@@ -310,16 +328,16 @@ public class HackathlonAPIResource {
 			httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
 			
 			System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
-			httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
+			httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", jsonInString);	
 			
 			System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
-			httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", request.toString());
+			httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", jsonInString);
 			
 			System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
-			httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", request.toString());
+			httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", jsonInString);
 
 			System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
-			httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
+			httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", jsonInString);
 			
 			System.out.println("Would call ["+serviceENVVariableMap.get("alabaster-snowball")+"/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 			EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
@@ -351,15 +369,7 @@ public class HackathlonAPIResource {
 			
 			
 		}
-		
-		
-//		try {
-//		JavaMailService.generateAndSendEmail(email.getContent().toString(), email.getSubject(), email.getEmailAddresses());
-//	} catch (MessagingException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//		return "Email Failed due to "+e.getMessage();
-//	}
+
 		System.out.println("Request from ["+request.getServiceName()+"] submitted successfully to " +serviceENVVariableMap.get(request.getServiceName())+"]");
 		System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
@@ -447,11 +457,13 @@ public class HackathlonAPIResource {
 
 		System.out.println("Request Object ---->" +request.toString());
 
-		boolean ordered = inOrder(request.iterator(), null);
+		if (request != null) {
+			boolean ordered = inOrder(request.iterator(), null);
 
-		if (!ordered) {
-			return INVALID_RESPONSE+request.toString();
+			if (!ordered) {
+				return INVALID_RESPONSE+request.toString();
 
+			}
 		}
 
 		return VALID_RESPONSE;
