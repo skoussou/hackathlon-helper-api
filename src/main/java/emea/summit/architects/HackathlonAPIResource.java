@@ -158,7 +158,7 @@ public class HackathlonAPIResource {
 //		put("pepper-minstix", "PEPPER_MINSTIX");
 //		put("alabaster-snowball", "ALABASTER_SNOWBALL");
 		put("NONE", "BUSHY_EVERGREEN");
-		put("bushy-evergreen", "SHINY_UPATREE");
+		put("bushy-evergreen", "SHINNY_UPATREE");
 		put("shinny-upatree", "WUNORSE_OPENSLAE");
 		put("wunorse-openslae", "PEPPER_MINSTIX");
 		put("pepper-minstix", "ALABASTER_SNOWBALL");
@@ -326,7 +326,8 @@ public class HackathlonAPIResource {
 			String hostReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 			String portReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 			//System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
-			if (namespacesServicesMap.get(request.getServiceName()).equalsIgnoreCase("alabaster-snowball")) {
+			//if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("santas-helpers-e-team")) {
+			if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("test-milans")) {
 				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/service/email-santa] \n POST   http://"+hostReal+":"+portReal+"/service/email-santa");
 			} else {
 				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/] http://"+hostReal+":"+portReal);
