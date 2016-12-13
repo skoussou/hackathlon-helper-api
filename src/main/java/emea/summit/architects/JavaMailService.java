@@ -87,7 +87,7 @@ public class JavaMailService {
 			System.out.println(emailSubject);
 		}
 		String emailBody = "Email by EMEA Architects PAAS Hackathlon. " + "<br><br> Regards, <br>Hackathlon Admin";
-		emailBody = "<br><br>*********************************"+emalContent+"<br><br>*********************************";
+		emailBody = "<br><br>*********************************\n"+emalContent+"\n<br><br>*********************************";
 		generateMailMessage.setContent(emailBody, "text/html");
 		System.out.println("Email Body: "+emailBody);
 		System.out.println("Mail Session has been created successfully..");

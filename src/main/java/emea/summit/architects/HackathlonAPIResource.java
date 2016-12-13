@@ -311,7 +311,7 @@ public class HackathlonAPIResource {
 //		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
 //		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
 		
-		System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
+		System.out.println("Would call ["+serviceENVVariableMap.get("alabaster-snowball")+"/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 		EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
 		
 		mapper = new ObjectMapper();
@@ -331,6 +331,8 @@ public class HackathlonAPIResource {
 		}
 		
 		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/service/email-santa", jsonEmailString);
+		System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
+		sendEmailNotification(email);
 //		httpCall("POST", "http://"+"localhost"+":"+8080+"/api/service/email-santa", jsonEmailString);
 
 		
@@ -401,7 +403,7 @@ public class HackathlonAPIResource {
 		System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 		
-		return "Request from ["+request.getServiceName()+"] submitted successfully to [" +serviceENVVariableMap.get(request.getServiceName()+"]");
+		return "Request from ["+request.getServiceName()+"] submitted successfully to [" +serviceENVVariableMap.get(request.getServiceName())+"]";
 	}
 	
 	private String httpCall(String httpMethod, String serviceURL, String data){
