@@ -149,13 +149,20 @@ public class HackathlonAPIResource {
 		put("santas-helpers-e-team", "test-milan");
 	}};
 	
+	// This is mapping of the current service providing the payload and the following to call by discovering it from OCP ENV Variables
 	private static Map<String, String> serviceENVVariableMap = new HashMap<String, String>(){{
 		put("proxy-api", "PROXY_API");
-		put("bushy-evergreen", "BUSHY_EVERGREEN");
-		put("shinny-upatree", "SHINY_UPATREE");
-		put("wunorse-openslae", "WUNORSE_OPENSLAE");
-		put("pepper-minstix", "PEPPER_MINSTIX");
-		put("alabaster-snowball", "ALABASTER_SNOWBALL");
+//		put("bushy-evergreen", "BUSHY_EVERGREEN");
+//		put("shinny-upatree", "SHINY_UPATREE");
+//		put("wunorse-openslae", "WUNORSE_OPENSLAE");
+//		put("pepper-minstix", "PEPPER_MINSTIX");
+//		put("alabaster-snowball", "ALABASTER_SNOWBALL");
+		put("NONE", "BUSHY_EVERGREEN");
+		put("bushy-evergreen", "SHINY_UPATREE");
+		put("shinny-upatree", "WUNORSE_OPENSLAE");
+		put("wunorse-openslae", "PEPPER_MINSTIX");
+		put("pepper-minstix", "ALABASTER_SNOWBALL");
+		put("alabaster-snowball", "PROXY_API");
 	}};
 	
 	private static Map<String, String> servicesRouteMap = new HashMap<String, String>(){{
@@ -233,27 +240,53 @@ public class HackathlonAPIResource {
 //        Route route = new Route(node, ocpClient, ResourcePropertiesRegistry.getInstance().get("v1", ResourceKind.ROUTE));
 //		ocpClient.getResourceURI(arg0)
 		
-		System.out.println("==================REQUEST SERVICE: "+request.getServiceName()+"=======================");
+		System.out.println("==================REQUESTING SERVICE: "+request.getServiceName()+"=======================");
 		System.out.println("PAYLOAD");
 		System.out.println(request.getPayload().toString());
 		
 		String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 		String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 		
-		String Ahost = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_HOST");
-		String Aport = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_PORT");
+		String Ahost = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_HOST");
+		String Aport = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_PORT");
 		
-		String Bhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
-		String Bport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
+		String Bhost = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_HOST");
+		String Bport = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_PORT");
+		
+		String Chost = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_HOST");
+		String Cport = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_PORT");
+		
+		String Dhost = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_HOST");
+		String Dport = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_PORT");
+		
+		String Ehost = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_HOST");
+		String Eport = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_PORT");	
+		
+		String Fhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
+		String Fport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
 		
 		System.out.println("Would call [proxy-api] \n POST   http://"+host+":"+port);
-		System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
-		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Bhost+":"+Bport);
 		
+		System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
 		httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", request.toString());
-		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());
+		
+		System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
+		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
+		
+		System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
+		httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", request.toString());
+		
+		System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
+		httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", request.toString());
 
+		System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
+		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", request.toString());
+		
+		System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
+		EmailPayload email = new EmailPayload(null, "SUCCESS", null);
+		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/service/email-santa", email.toString());
 
+		
 		if (PROD_ENV) {
 			if (validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE)){
 				System.out.println("Valid...sending to next service");
@@ -289,6 +322,17 @@ public class HackathlonAPIResource {
 					return "Email Failed due to "+e.getMessage();
 				}
 			}
+		} else {
+			String hostReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
+			String portReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
+			//System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
+			if (namespacesServicesMap.get(request.getServiceName()).equalsIgnoreCase("alabaster-snowball")) {
+				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/service/email-santa] \n POST   http://"+hostReal+":"+portReal+"/service/email-santa");
+			} else {
+				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/] http://"+hostReal+":"+portReal);
+			}
+			
+			
 		}
 		
 		
@@ -299,11 +343,11 @@ public class HackathlonAPIResource {
 //		e.printStackTrace();
 //		return "Email Failed due to "+e.getMessage();
 //	}
-		
+		System.out.println("Request from ["+request.getServiceName()+"] submitted successfully to" +serviceENVVariableMap.get(request.getServiceName()));
 		System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 		
-		return "Email was submitted successfully";
+		return "Request from ["+request.getServiceName()+"] submitted successfully to" +serviceENVVariableMap.get(request.getServiceName());
 	}
 	
 	private String httpCall(String httpMethod, String serviceURL, String data){
