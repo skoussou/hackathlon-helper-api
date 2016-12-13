@@ -83,6 +83,7 @@ import feign.hystrix.HystrixFeign;
 import feign.jackson.JacksonDecoder;
 import io.swagger.annotations.ApiOperation;
 import io.undertow.client.ClientRequest;
+import io.undertow.server.handlers.GracefulShutdownHandler;
 
 /**
  * 
@@ -267,8 +268,24 @@ public class HackathlonAPIResource {
 		
 		System.out.println("Would call [proxy-api] \n POST   http://"+host+":"+port);
 		
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonInString = null;
+		try {
+			//Convert object to JSON string
+			jsonInString = mapper.writeValueAsString(request);
+
+			//Convert object to JSON string and pretty print
+			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
+			System.out.println("JSON REQUEST "+jsonInString);
+
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Failed to transform to JSON "+e.getMessage();
+		}
+
 		System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
-		httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", request.toString());
+		httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
 		
 		System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
 		httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", request.toString());	
@@ -284,7 +301,26 @@ public class HackathlonAPIResource {
 		
 		System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 		EmailPayload email = new EmailPayload(null, "SUCCESS", null);
-		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/service/email-santa", email.toString());
+		
+		mapper = new ObjectMapper();
+		String jsonEmailString = null;
+		try {
+			//Convert object to JSON string
+			jsonEmailString = mapper.writeValueAsString(email);
+
+			//Convert object to JSON string and pretty print
+			jsonEmailString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(email);
+			System.out.println("JSON REQUEST "+jsonEmailString);
+
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Failed to transform to JSON "+e.getMessage();
+		}
+		
+		httpCall("POST", "http://"+Ehost+":"+Eport+"/api/service/email-santa", jsonEmailString);
+		
+		
 
 		
 		if (PROD_ENV) {
