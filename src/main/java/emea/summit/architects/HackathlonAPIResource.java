@@ -95,36 +95,39 @@ public class HackathlonAPIResource {
 
 	
 	
-	private static final String API_PAYLOAD = "[  \n"+ 
-			"   {  \n"+ 
-			"      \"teamName\":\"\",\n"+ 
-			"      \"reindeerName\":\"\",\n"+ 
-			"      \"nameEmaiMap\":{  \n"+ 
-			"         \" \":\" \"\n"+ 
-			"      }\n"+ 
-			"   }\n"+ 
-			"]\n";
+	private static final String API_PAYLOAD = "{\n"+
+   " \"serviceName\" : \"\",\n"+
+   " \"payload\" : [ {\n"+
+   "   \"teamName\":\"\",,\n"+
+   "   \"reindeerName\":\"\",\n"+
+   "   \"nameEmaiMap\":{  \n"+
+   "         \" \":\" \"\n"+
+   "  }\n"+
+   "}\n"+
+  "]\n"+
+   "}";
 
 
 	private static final String API_PAYLOAD_EXAMPLE = 
 			"[  \n"+
 					"   {  \n"+
-					"      \"teamName\":\"santas-helpers-c-team\",\n"+
-					"      \"reindeerName\":\"blixen\",\n"+
-					"      \"nameEmaiMap\":{  \n"+
-					"         \"Andrea Tarrochi\":\"atarocch@redhat.com\",\n"+
-					"         \"Stelios Kousouris\":\"stelios@redhat.com\"\n"+
-					"      }\n"+
-					"   },\n"+
-					"   {  \n"+
-					"      \"teamName\":\"santas-helpers-a-team\",\n"+
-					"      \"reindeerName\":\"dancer\",\n"+
-					"      \"nameEmaiMap\":{  \n"+
-					"         \"Matteo Renzi\":\"mrenzi@redhat.com\",\n"+
-					"         \"Antonis Tsipras\":\"atsipras@redhat.com\"\n"+
-					"      }\n"+
-					"   }\n"+
-					"]\n";
+					"   \"serviceName\" : \"shinny-upatree\",  \n"+
+					"   \"payload\" : [ {  \n"+
+					"    \"teamName\" : \"santas-helpers-c-team\",  \n"+
+					"    \"reindeerName\" : \"comet\",  \n"+
+					"    \"nameEmaiMap\" : {  \n"+
+					"      \"Andrea Tarrochi\" : \"atarocch@redhat.com\",  \n"+
+					"      \"Stelios Kousouris\" : \"stelios@redhat.com\"  \n"+
+					"    }  \n"+
+					"   }, {  \n"+
+					"    \"teamName\" : \"santas-helpers-a-team\",  \n"+
+					"    \"reindeerName\" : \"dancer\",  \n"+
+					"    \"nameEmaiMap\" : {  \n"+
+					"      \"Matteo Renzi\" : \"mrenzi@redhat.com\",  \n"+
+					"      \"Antonis Tsipras\" : \"atsipras@redhat.com\"  \n"+
+					"    }  \n"+
+					"   } ]  \n"+
+					" }  \n";
 
 	private static final int ZERO = 0;
 	private static final String VALID_RESPONSE = "The service is valid and Reindeers in order";
@@ -260,8 +263,8 @@ public class HackathlonAPIResource {
 				String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 				
 				if (!request.getServiceName().equalsIgnoreCase("alabaster-snowball")) {
-					System.out.println("Next call Service ["+serviceENVVariableMap.get(request.getServiceName())+"] at http://"+host+":"+port+"/api/reindeerservice");
-					httpCall("POST", "http://"+host+":"+port+"/api/reindeerservice", jsonInString);
+					System.out.println("Next call Service ["+serviceENVVariableMap.get(request.getServiceName())+"] at http://"+host+":"+port+"/reindeerservice");
+					httpCall("POST", "http://"+host+":"+port+"/reindeerservice", jsonInString);
 				} else {
 					System.out.println("Next Notify Santa via Email");
 					EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
