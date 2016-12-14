@@ -153,11 +153,7 @@ public class HackathlonAPIResource {
 	// This is mapping of the current service providing the payload and the following to call by discovering it from OCP ENV Variables
 	private static Map<String, String> serviceENVVariableMap = new HashMap<String, String>(){{
 		put("proxy-api", "PROXY_API");
-//		put("bushy-evergreen", "BUSHY_EVERGREEN");
-//		put("shinny-upatree", "SHINY_UPATREE");
-//		put("wunorse-openslae", "WUNORSE_OPENSLAE");
-//		put("pepper-minstix", "PEPPER_MINSTIX");
-//		put("alabaster-snowball", "ALABASTER_SNOWBALL");
+
 		put("NONE", "BUSHY_EVERGREEN");
 		put("bushy-evergreen", "SHINNY_UPATREE");
 		put("shinny-upatree", "WUNORSE_OPENSLAE");
@@ -252,15 +248,12 @@ public class HackathlonAPIResource {
 			e.printStackTrace();
 			return "Failed to transform to JSON "+e.getMessage();
 		}
-		//System.out.println(jsonInString);
-		
 
-		
+
+		boolean payloadValid = validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE);
 		if (PROD_ENV) {
 			    
-				System.out.println("["+System.getenv("ENVIRONMENT")+"] Payload Valid Pass: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
-				// TODO 
-				// find the next service and send OR send email to SANTA
+				System.out.println("["+System.getenv("ENVIRONMENT")+"] Payload Valid Pass: "+payloadValid);
 
 				
 				String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
@@ -294,87 +287,88 @@ public class HackathlonAPIResource {
 				}
 				
 		} else {
-//			String hostReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
-//			String portReal = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
+			String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
+			String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 			//System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 			//if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("santas-helpers-e-team")) {
 			
-			System.out.println("["+System.getenv("ENVIRONMENT")+"]Payload Validation Statement: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
+			System.out.println("["+System.getenv("ENVIRONMENT")+"]Payload Validation Statement: "+payloadValid);
 			
-			String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
-			String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
-			
-			String Ahost = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_HOST");
-			String Aport = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_PORT");
-			
-			String Bhost = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_HOST");
-			String Bport = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_PORT");
-			
-			String Chost = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_HOST");
-			String Cport = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_PORT");
-			
-			String Dhost = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_HOST");
-			String Dport = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_PORT");
-			
-			String Ehost = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_HOST");
-			String Eport = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_PORT");	
-			
-			String Fhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
-			String Fport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
-			
-//			System.out.println("Next call ["+serviceENVVariableMap.get(request.getServiceName())+"] \n POST   http://"+host+":"+port);
-
-			System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
-			httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
-			
-			System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
-			httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", jsonInString);	
-			
-			System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
-			httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", jsonInString);
-			
-			System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
-			httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", jsonInString);
-
-			System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
-			httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", jsonInString);
-			
-			System.out.println("Would call ["+serviceENVVariableMap.get("alabaster-snowball")+"/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
-			EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
-			
-			mapper = new ObjectMapper();
-			String jsonEmailString = null;
-			try {
-				//Convert object to JSON string
-				jsonEmailString = mapper.writeValueAsString(email);
-
-				//Convert object to JSON string and pretty print
-				jsonEmailString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(email);
-				System.out.println("JSON REQUEST "+jsonEmailString);
-
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				return "Failed to transform to JSON "+e.getMessage();
-			}
-			
-			System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
-			sendEmailNotification(email);
-			
-//			if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("test-milans")) {
-//				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/service/email-santa] \n POST   http://"+hostReal+":"+portReal+"/service/email-santa");
-//			} else {
-//				System.out.println("Next Service we would have called if NOT in DEV Mode would have been [/] http://"+hostReal+":"+portReal);
+//			String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
+//			String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
+//			
+//			String Ahost = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_HOST");
+//			String Aport = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_PORT");
+//			
+//			String Bhost = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_HOST");
+//			String Bport = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_PORT");
+//			
+//			String Chost = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_HOST");
+//			String Cport = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_PORT");
+//			
+//			String Dhost = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_HOST");
+//			String Dport = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_PORT");
+//			
+//			String Ehost = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_HOST");
+//			String Eport = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_PORT");	
+//			
+//			String Fhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
+//			String Fport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
+//			
+			System.out.println("Next call ["+serviceENVVariableMap.get(request.getServiceName())+"] \n POST   http://"+host+":"+port);
+//
+//			System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
+//			httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
+//			
+//			System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
+//			httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", jsonInString);	
+//			
+//			System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
+//			httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", jsonInString);
+//			
+//			System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
+//			httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", jsonInString);
+//
+//			System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
+//			httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", jsonInString);
+//			
+//			System.out.println("Would call ["+serviceENVVariableMap.get("alabaster-snowball")+"/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
+//			EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
+//			
+//			mapper = new ObjectMapper();
+//			String jsonEmailString = null;
+//			try {
+//				//Convert object to JSON string
+//				jsonEmailString = mapper.writeValueAsString(email);
+//
+//				//Convert object to JSON string and pretty print
+//				jsonEmailString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(email);
+//				System.out.println("JSON REQUEST "+jsonEmailString);
+//
+//
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				return "Failed to transform to JSON "+e.getMessage();
 //			}
+//			
+//			System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
+//			sendEmailNotification(email);
+			
+			if (request.getServiceName().equalsIgnoreCase("alabaster-snowball")) {
+				System.out.println("Next Service we would have called if NOT in DEV Mode would have been ["+serviceENVVariableMap.get(request.getServiceName())+"/api/service/email-santa] \n POST   http://"+host+":"+port+"/api/service/email-santa");
+			} else {
+				System.out.println("Next Service we would have called if NOT in DEV Mode would have been ["+serviceENVVariableMap.get(request.getServiceName())+"/reindeerservice] http://"+host+":"+port+"/redindeerservice");
+			}
 			
 			
 		}
-
-		System.out.println("Request from ["+request.getServiceName()+"] submitted successfully to " +serviceENVVariableMap.get(request.getServiceName())+"]");
+			
+		System.out.println("Request from ["+request.getServiceName()+"] submitted successfully to next service " +serviceENVVariableMap.get(request.getServiceName())
+		+"] payload was "+(payloadValid? "VALID": "INVALID"));
 		System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-
 		
-		return "Request from ["+request.getServiceName()+"] submitted successfully to [" +serviceENVVariableMap.get(request.getServiceName())+"]";
+		return "Request from ["+request.getServiceName()+"] submitted successfully to next service [" +serviceENVVariableMap.get(request.getServiceName())+"] payload was "
+		+(payloadValid? "VALID": "INVALID")+"\n"+request.toString();
 	}
 	
 	private String httpCall(String httpMethod, String serviceURL, String data){
