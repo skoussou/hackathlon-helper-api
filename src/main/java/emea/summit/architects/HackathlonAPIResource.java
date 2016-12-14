@@ -271,7 +271,8 @@ public class HackathlonAPIResource {
 					httpCall("POST", "https://"+host+":"+port+"/api/reindeerservice", jsonInString);
 				} else {
 					System.out.println("Next Notify Santa via Email");
-					EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
+					List<RequestPayload> emailContent = (request.getPayload()==null ? new ArrayList<RequestPayload>() : request.getPayload());
+					EmailPayload email = new EmailPayload(emailContent, "SUCCESS", Arrays.asList("stelios@redhat.com"));
 					
 					mapper = new ObjectMapper();
 					String jsonEmailString = null;
