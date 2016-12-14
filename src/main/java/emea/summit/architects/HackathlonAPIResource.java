@@ -238,7 +238,7 @@ public class HackathlonAPIResource {
 //		System.out.println("<--------------------------------------------------->");
 
 		
-		System.out.println("=====["+System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")+" MODE]=============REQUESTING SERVICE: "+request.getServiceName()+"=======================");
+		System.out.println("=====["+System.getenv("ENVIRONMENT")+" MODE]=============REQUESTING SERVICE: "+request.getServiceName()+"=======================");
 		System.out.println("PAYLOAD PROVIDED");
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonInString = null;
@@ -258,7 +258,7 @@ public class HackathlonAPIResource {
 		
 		if (PROD_ENV) {
 			    
-				System.out.println("["+System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")+"] Payload Valid Pass: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
+				System.out.println("["+System.getenv("ENVIRONMENT")+"] Payload Valid Pass: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
 				// TODO 
 				// find the next service and send OR send email to SANTA
 
@@ -267,8 +267,8 @@ public class HackathlonAPIResource {
 				String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 				
 				if (!request.getServiceName().equalsIgnoreCase("alabaster-snowball")) {
-				System.out.println("Next call Service ["+serviceENVVariableMap.get(request.getServiceName())+"] at https://"+host+":"+port);
-				httpCall("POST", "https://"+host+":"+port, request.toString());
+					System.out.println("Next call Service ["+serviceENVVariableMap.get(request.getServiceName())+"] at https://"+host+":"+port+"/api/reindeerservice");
+					httpCall("POST", "https://"+host+":"+port+"/api/reindeerservice", jsonInString);
 				} else {
 					System.out.println("Next Notify Santa via Email");
 					EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
@@ -299,7 +299,7 @@ public class HackathlonAPIResource {
 			//System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 			//if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("santas-helpers-e-team")) {
 			
-			System.out.println("["+System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")+"]Payload Validation Statement: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
+			System.out.println("["+System.getenv("ENVIRONMENT")+"]Payload Validation Statement: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
 			
 			String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 			String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
@@ -451,9 +451,8 @@ public class HackathlonAPIResource {
 	@ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
 	public String validate(List<RequestPayload> request) {
 
-		System.out.println("Request Object ---->" +request.toString());
-
 		if (request != null) {
+			System.out.println("Request Object ---->" +request.toString());
 			boolean ordered = inOrder(request.iterator(), null);
 
 			if (!ordered) {
