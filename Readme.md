@@ -55,4 +55,26 @@ Alternative
 6. Add route
 7. Don't forget to add to /etc/hosts against infra IP if needed to call from browser or external to OCP if your OCP cluster doesn't resolve via DNS the route
 
+When DNS isnt working you can use appname.35.156.180.17.xip.io or .nip.io in your route name.
+You can also set that as default subdomain in the master-config.yaml
 
+apiVersion: v1
+kind: Route
+metadata:
+  name: proxy-api
+  namespace: santas-helpers-e-team
+  selfLink: /oapi/v1/namespaces/santas-helpers-e-team/routes/proxy-api
+  uid: 84e4e82f-c1d9-11e6-9faa-024fcfbc69e5
+  labels:
+    app: proxy-api
+  annotations:
+    openshift.io/generated-by: OpenShiftWebConsole
+    openshift.io/host.generated: 'true'
+spec:
+  host: proxy-api-santas-helpers-e-team.35.156.180.17.xip.io
+  to:
+    kind: Service
+    name: proxy-api
+    weight: 100
+  port:
+    targetPort: 8080-tcp
