@@ -160,11 +160,10 @@ public class HackathlonAPIResource {
 		put("proxy-api", "PROXY_API");
 
 		put("NONE", "BUSHY_EVERGREEN");
-//		put("bushy-evergreen", "SHINNY_UPATREE");
-//		put("shinny-upatree", "WUNORSE_OPENSLAE");
-//		put("wunorse-openslae", "PEPPER_MINSTIX");
-//		put("pepper-minstix", "ALABASTER_SNOWBALL");
-		put("bushy-evergreen", "ALABASTER_SNOWBALL");
+		put("bushy-evergreen", "SHINNY_UPATREE");
+		put("shinny-upatree", "WUNORSE_OPENSLAE");
+		put("wunorse-openslae", "PEPPER_MINSTIX");
+		put("pepper-minstix", "ALABASTER_SNOWBALL");
 		put("alabaster-snowball", "PROXY_API");
 	}};
 	
