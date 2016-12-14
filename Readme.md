@@ -55,9 +55,11 @@ Alternative
 6. Add route
 7. Don't forget to add to /etc/hosts against infra IP if needed to call from browser or external to OCP if your OCP cluster doesn't resolve via DNS the route
 
-When DNS isnt working you can use appname.35.156.180.17.xip.io or .nip.io in your route name.
-You can also set that as default subdomain in the master-config.yaml
+OR
 
+- When DNS isnt working you can use appname.35.156.180.17.xip.io or .nip.io in your route name.
+- You can also set that as default subdomain in the master-config.yaml
+eg. (go to project and Add to project via YAML/JSON)
 apiVersion: v1
 kind: Route
 metadata:
