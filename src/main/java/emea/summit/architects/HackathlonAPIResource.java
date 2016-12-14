@@ -260,8 +260,8 @@ public class HackathlonAPIResource {
 				String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
 				
 				if (!request.getServiceName().equalsIgnoreCase("alabaster-snowball")) {
-					System.out.println("Next call Service ["+serviceENVVariableMap.get(request.getServiceName())+"] at https://"+host+":"+port+"/api/reindeerservice");
-					httpCall("POST", "https://"+host+":"+port+"/api/reindeerservice", jsonInString);
+					System.out.println("Next call Service ["+serviceENVVariableMap.get(request.getServiceName())+"] at http://"+host+":"+port+"/api/reindeerservice");
+					httpCall("POST", "http://"+host+":"+port+"/api/reindeerservice", jsonInString);
 				} else {
 					System.out.println("Next Notify Santa via Email");
 					EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
