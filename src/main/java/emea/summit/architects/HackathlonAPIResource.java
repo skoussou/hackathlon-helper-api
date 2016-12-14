@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -287,6 +289,27 @@ public class HackathlonAPIResource {
 					
 					System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
 					sendEmailNotification(email);
+					
+					// Hackahtlon reward
+					System.out.println("Reward will be sent to hackathlon participant");
+					Set rewardEmails = new HashSet<String>();
+					for(RequestPayload item : request.getPayload()) {
+						for (Map.Entry<String,String> entry : item.getNameEmaiMap().entrySet()) {
+							System.out.println(entry.getKey()+" : "+entry.getValue());
+							rewardEmails.add(entry.getValue());
+						}
+					}
+					String emailBody = "Dear Hackathlon Participant,\n Thank you for participating on the PAAS Hackathlon. To reward you for your tenacity send to atarocch@redhat.com, stelios@redhat.com "
+							+ "your T-SHIRT size along with a delivery address for some Red Hat swag. \nThank You\n The Hackathlon Team";
+					try {
+						String emailContent = (email.getContent()==null ? "" : email.getContent().toString());
+						JavaMailService.generateAndSendEmail(emailBody, "REWARD FOR PAAS HACKATHLON PARTICIPATION", new ArrayList<String>(rewardEmails));
+					} catch (MessagingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return "Email Failed due to "+e.getMessage();
+					}
+					
 				}
 				
 		} else {
