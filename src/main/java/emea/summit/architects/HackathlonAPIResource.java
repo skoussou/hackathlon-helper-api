@@ -238,7 +238,7 @@ public class HackathlonAPIResource {
 //		System.out.println("<--------------------------------------------------->");
 
 		
-		System.out.println("==================REQUESTING SERVICE: "+request.getServiceName()+"=======================");
+		System.out.println("=====["+System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")+" MODE]=============REQUESTING SERVICE: "+request.getServiceName()+"=======================");
 		System.out.println("PAYLOAD PROVIDED");
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonInString = null;
@@ -252,13 +252,13 @@ public class HackathlonAPIResource {
 			e.printStackTrace();
 			return "Failed to transform to JSON "+e.getMessage();
 		}
-		System.out.println(jsonInString);
+		//System.out.println(jsonInString);
 		
 
 		
 		if (PROD_ENV) {
 			    
-				System.out.println("Payload Valid Pass: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
+				System.out.println("["+System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")+"] Payload Valid Pass: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
 				// TODO 
 				// find the next service and send OR send email to SANTA
 
@@ -299,7 +299,7 @@ public class HackathlonAPIResource {
 			//System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
 			//if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("santas-helpers-e-team")) {
 			
-			System.out.println("Payload Validation Statement: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
+			System.out.println("["+System.getenv("ENVIRONMENT").equalsIgnoreCase("PROD")+"]Payload Validation Statement: "+validate(request.getPayload()).equalsIgnoreCase(VALID_RESPONSE));
 			
 			String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 			String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
@@ -387,7 +387,7 @@ public class HackathlonAPIResource {
 		System.out.println("     HTTP METHOD : "+httpMethod);
 		System.out.println("     URL         : "+serviceURL);
 		System.out.println("     Content     : "+data);
-		System.out.println("<======================================================================>");
+		//System.out.println("<======================================================================>");
 
 		if (httpMethod != null || httpMethod.equals("GET") || httpMethod.equals("POST") || httpMethod.equals("PUT")) {
 
@@ -406,29 +406,25 @@ public class HackathlonAPIResource {
 				} else {
 					result = putRequest(serviceURL, "application/json");
 				}
-
-				System.out.println("<=================== RESPONSE ====================> ");
+				System.out.println("<============================= RESPONSE ==============================> ");
 				System.out.println("    "+result); 
-				System.out.println("<=======================================> ");
+				System.out.println("<======================================================================>");
 
 			} catch (Exception e) {
 				System.out.println("****************************************************************");
-				//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-				System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
+				System.out.println("FAILED - CALLING SERVICE AT "+serviceURL);
 				System.out.println(e.getMessage());
 				System.out.println("****************************************************************");
 				return result;
 			}
 			System.out.println("****************************************************************");
-			//System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-			System.out.println("SUCCESS - CALLING ANOTHER SERVICE FROM "+serviceURL);
+			System.out.println("SUCCESS - CALLING SERVICE AT "+serviceURL);
 			System.out.println("****************************************************************");
 			return result;
 
 		}
 		System.out.println("****************************************************************");
-		//System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL+"api/hackathlon/info");
-		System.out.println("FAILED - CALLING ANOTHER SERVICE FROM "+serviceURL);
+		System.out.println("FAILED - CALLING SERVICE AT "+serviceURL);
 		System.out.println("****************************************************************");
 		return result;
 	}
