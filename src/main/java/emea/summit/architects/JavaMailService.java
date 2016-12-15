@@ -99,7 +99,7 @@ public class JavaMailService {
 		// Enter your correct gmail UserID and Password
 		// if you have 2FA enabled then provide App Specific Password
 		//transport.connect("smtp.gmail.com", "<----- Your GMAIL ID ----->", "<----- Your GMAIL PASSWORD ----->");
-		transport.connect("smtp.gmail.com", "koussouris.stelios@gmail.com", "greece106");
+		transport.connect("smtp.gmail.com", System.getenv("EMAIL_SERVER_PASSWORD"), System.getenv("EMAIL_SERVER_PASSWORD"), );
 		transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
 		transport.close();
 	}

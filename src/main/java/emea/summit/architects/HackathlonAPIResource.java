@@ -88,6 +88,8 @@ import io.undertow.client.ClientRequest;
 import io.undertow.server.handlers.GracefulShutdownHandler;
 
 /**
+ * Proxies requests to all other services and handles order of MSA calls for the main service.
+ *  
  * 
  * @author stelios@redhat.com
  *
@@ -135,24 +137,12 @@ public class HackathlonAPIResource {
 	private static final String VALID_RESPONSE = "The service is valid and Reindeers in order";
 	private static final String INVALID_RESPONSE = "The service is invalid and Reindeers are out of order \n ";
 
-	private static LinkedList<String> serviceRoutes = new LinkedList<String>(Arrays.asList("http://santas-helpers-a-team.router.default.svc.cluster.local",
-			"http://santas-helpers-b-team.router.default.svc.cluster.local",
-			"http://santas-helpers-c-team.router.default.svc.cluster.local",
-			"http://santas-helpers-d-team.router.default.svc.cluster.local",
-			"http://santas-helpers-e-team.router.default.svc.cluster.local",
-			"http://swarm-email-santas-list.router.default.svc.cluster.local"));
-	
 	private static Map<String, String> namespacesServicesMap = new HashMap<String, String>(){{
-//		put("santas-helpers-a-team", "bushy-evergreen");
-//		put("santas-helpers-b-team", "shinny-upatree");
-//		put("santas-helpers-c-team", "wunorse-openslae");
-//		put("santas-helpers-d-team", "pepper-minstix");
-//		put("santas-helpers-e-team", "alabaster-snowball");
-		put("santas-helpers-a-team", "test-milan");
-		put("santas-helpers-b-team", "test-milan");
-		put("santas-helpers-c-team", "test-milan");
-		put("santas-helpers-d-team", "test-milan");
-		put("santas-helpers-e-team", "test-milan");
+		put("santas-helpers-a-team", "bushy-evergreen");
+		put("santas-helpers-b-team", "shinny-upatree");
+		put("santas-helpers-c-team", "wunorse-openslae");
+		put("santas-helpers-d-team", "pepper-minstix");
+		put("santas-helpers-e-team", "alabaster-snowball");
 	}};
 	
 	// This is mapping of the current service providing the payload and the following to call by discovering it from OCP ENV Variables
@@ -184,46 +174,6 @@ public class HackathlonAPIResource {
 
 	@Context
 	private HttpServletRequest servletRequest;
-
-	private IClient createOCPClient() {
-		//IClient client = new ClientBuilder("https://api.preview.openshift.com")
-		IClient client = new ClientBuilder("https://35.156.133.70:8443")
-				.usingToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg")
-//			    .withUserName("admin")
-//			    .withPassword("admin123")
-			    .build();
-		//client.getAuthorizationContext().setToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg");
-	
-		return client;
-	}
-	
-	private String namespaceFromService(String serviceName) {
-		
-		for(Map.Entry<String,String> entry: namespacesServicesMap.entrySet()) {
-			System.out.println(entry.getKey() + ": " + entry.getValue());
-			if (serviceName.equalsIgnoreCase(entry.getValue())); {
-				System.out.println("Namespace "+entry.getValue()+" found for Service Name "+serviceName);
-				return entry.getValue();
-			}
-		}
-//		// In Java 8 you can write
-//		namespacesServicesMap.forEach((k, v) -> System.out.println(k + ": " + v));
-		return null;
-	}
-		    
-	private List<String> emailsOfTeam(TeamPayload request) {
-		
-		String teamName = namespaceFromService(request.getServiceName());
-		
-		for(RequestPayload entry : request.getPayload()) {
-			System.out.println("if "+entry.getTeamName()+" EQUALS"+ teamName+" --> "+entry.getTeamName().equalsIgnoreCase(teamName));
-			if (entry.getTeamName().equalsIgnoreCase(teamName)) {
-				System.out.println("Team Emails"+entry.getNameEmaiMap().values());
-				return (List<String> ) entry.getNameEmaiMap().values();
-			}
-		}
-		return null;
-	}
 
 	@POST  
 	@Path("/service/proxy")
@@ -315,71 +265,10 @@ public class HackathlonAPIResource {
 		} else {
 			String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
 			String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
-			//System.out.println("Would call [/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
-			//if (namespaceFromService(request.getServiceName()).equalsIgnoreCase("santas-helpers-e-team")) {
 			
-			System.out.println("["+System.getenv("ENVIRONMENT")+"]Payload Validation Statement: "+payloadValid);
-			
-//			String host = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_HOST");
-//			String port = System.getenv(serviceENVVariableMap.get(request.getServiceName())+"_SERVICE_PORT");
-//			
-//			String Ahost = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_HOST");
-//			String Aport = System.getenv(serviceENVVariableMap.get("NONE")+"_SERVICE_PORT");
-//			
-//			String Bhost = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_HOST");
-//			String Bport = System.getenv(serviceENVVariableMap.get("bushy-evergreen")+"_SERVICE_PORT");
-//			
-//			String Chost = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_HOST");
-//			String Cport = System.getenv(serviceENVVariableMap.get("shinny-upatree")+"_SERVICE_PORT");
-//			
-//			String Dhost = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_HOST");
-//			String Dport = System.getenv(serviceENVVariableMap.get("wunorse-openslae")+"_SERVICE_PORT");
-//			
-//			String Ehost = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_HOST");
-//			String Eport = System.getenv(serviceENVVariableMap.get("pepper-minstix")+"_SERVICE_PORT");	
-//			
-//			String Fhost = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_HOST");
-//			String Fport = System.getenv(serviceENVVariableMap.get("alabaster-snowball")+"_SERVICE_PORT");
-//			
+			System.out.println("["+System.getenv("ENVIRONMENT")+"]Payload Validation Statement: "+payloadValid);					
 			System.out.println("Next call ["+serviceENVVariableMap.get(request.getServiceName())+"] \n POST   http://"+host+":"+port);
-//
-//			System.out.println("Would call [bushy-evergreen] \n POST   http://"+Ahost+":"+Aport);
-//			httpCall("POST", "http://"+Ahost+":"+Aport+"/api/test", jsonInString);
-//			
-//			System.out.println("Would call [shinny-upatree] \n POST   http://"+Bhost+":"+Bport);
-//			httpCall("POST", "http://"+Bhost+":"+Bport+"/api/test", jsonInString);	
-//			
-//			System.out.println("Would call [wunorse-openslae] \n POST   http://"+Chost+":"+Cport);
-//			httpCall("POST", "http://"+Chost+":"+Cport+"/api/test", jsonInString);
-//			
-//			System.out.println("Would call [pepper-minstix] \n POST   http://"+Dhost+":"+Dport);
-//			httpCall("POST", "http://"+Dhost+":"+Dport+"/api/test", jsonInString);
-//
-//			System.out.println("Would call [alabaster-snowball] \n POST   http://"+Ehost+":"+Eport);
-//			httpCall("POST", "http://"+Ehost+":"+Eport+"/api/test", jsonInString);
-//			
-//			System.out.println("Would call ["+serviceENVVariableMap.get("alabaster-snowball")+"/service/email-santa] \n POST   http://"+Ehost+":"+Eport);
-//			EmailPayload email = new EmailPayload(request.getPayload(), "SUCCESS", Arrays.asList("stelios@redhat.com"));
-//			
-//			mapper = new ObjectMapper();
-//			String jsonEmailString = null;
-//			try {
-//				//Convert object to JSON string
-//				jsonEmailString = mapper.writeValueAsString(email);
-//
-//				//Convert object to JSON string and pretty print
-//				jsonEmailString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(email);
-//				System.out.println("JSON REQUEST "+jsonEmailString);
-//
-//
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				return "Failed to transform to JSON "+e.getMessage();
-//			}
-//			
-//			System.out.println("EMAIL DIRECT (NO REST SERVICE CALL...");
-//			sendEmailNotification(email);
-			
+		
 			if (request.getServiceName().equalsIgnoreCase("alabaster-snowball")) {
 				System.out.println("Next Service we would have called if NOT in DEV Mode would have been ["+serviceENVVariableMap.get(request.getServiceName())+"/api/service/email-santa] \n POST   http://"+host+":"+port+"/api/service/email-santa");
 			} else {
@@ -395,6 +284,63 @@ public class HackathlonAPIResource {
 		
 		return "Request from ["+request.getServiceName()+"] submitted successfully to next service [" +serviceENVVariableMap.get(request.getServiceName())+"] payload was "
 		+(payloadValid? "VALID": "INVALID")+"\n"+request.toString();
+	}
+
+
+	@POST  
+	@Path("/service/validate")
+	@Consumes("application/json")
+	@ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
+	public String validate(List<RequestPayload> request) {
+
+		if (request != null) {
+			System.out.println("Request Object ---->" +request.toString());
+			boolean ordered = inOrder(request.iterator(), null);
+
+			if (!ordered) {
+				return INVALID_RESPONSE+request.toString();
+
+			}
+		}
+
+		return VALID_RESPONSE;
+	}
+
+	@GET
+	@Path("/info")
+	@Produces("application/json")
+	@ApiOperation("Returns the greeting in Spanish")
+	public String info() {
+
+		String info = "\n\n================================================"
+				+"\n     EMEA ARCHITECTS HATCKATHLON INFORMATION "
+				+"\n================================================"
+				+"\n\nAPI PAYLOAD"
+				+"\n-----------------------"
+				+"\n"+API_PAYLOAD
+				+"\n\nEXAMPLE : \n"
+				+"\n"+API_PAYLOAD_EXAMPLE
+				+"\n===========================================";
+
+		System.out.println(info);
+		return info;
+	}
+	
+	
+//	@POST  
+//	@Path("/service/email-santa")
+//	@Consumes("application/json")
+//	@ApiOperation("Sends the email to a list of participants, with subject and payload")
+	public String sendEmailNotification(EmailPayload email) {
+		try {
+			String emailContent = (email.getContent()==null ? "" : email.getContent().toString());
+			JavaMailService.generateAndSendEmail(emailContent.toString(), email.getSubject(), email.getEmailAddresses());
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "Email Failed due to "+e.getMessage();
+		}
+		return "Email was submitted successfully";
 	}
 	
 	private String httpCall(String httpMethod, String serviceURL, String data){
@@ -449,61 +395,46 @@ public class HackathlonAPIResource {
 		return result;
 	}
 	
+	private IClient createOCPClient() {
+		//IClient client = new ClientBuilder("https://api.preview.openshift.com")
+		IClient client = new ClientBuilder("https://35.156.133.70:8443")
+				.usingToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg")
+//			    .withUserName("admin")
+//			    .withPassword("admin123")
+			    .build();
+		//client.getAuthorizationContext().setToken("RRhGF3JrhkwtmUoj51WwV4pnBLGzxpq1n2X1grqK4bg");
 	
-	@POST  
-	@Path("/service/email-santa")
-	@Consumes("application/json")
-	@ApiOperation("Sends the email to a list of participants, with subject and payload")
-	public String sendEmailNotification(EmailPayload email) {
-		try {
-			String emailContent = (email.getContent()==null ? "" : email.getContent().toString());
-			JavaMailService.generateAndSendEmail(emailContent.toString(), email.getSubject(), email.getEmailAddresses());
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "Email Failed due to "+e.getMessage();
-		}
-		return "Email was submitted successfully";
+		return client;
 	}
-
-	@POST  
-	@Path("/service/validate")
-	@Consumes("application/json")
-	@ApiOperation("Sends the expected payload of your service and it will validate construct and ordering")
-	public String validate(List<RequestPayload> request) {
-
-		if (request != null) {
-			System.out.println("Request Object ---->" +request.toString());
-			boolean ordered = inOrder(request.iterator(), null);
-
-			if (!ordered) {
-				return INVALID_RESPONSE+request.toString();
-
+	
+	private String namespaceFromService(String serviceName) {
+		
+		for(Map.Entry<String,String> entry: namespacesServicesMap.entrySet()) {
+			System.out.println(entry.getKey() + ": " + entry.getValue());
+			if (serviceName.equalsIgnoreCase(entry.getValue())); {
+				System.out.println("Namespace "+entry.getValue()+" found for Service Name "+serviceName);
+				return entry.getValue();
 			}
 		}
-
-		return VALID_RESPONSE;
+//		// In Java 8 you can write
+//		namespacesServicesMap.forEach((k, v) -> System.out.println(k + ": " + v));
+		return null;
+	}
+		    
+	private List<String> emailsOfTeam(TeamPayload request) {
+		
+		String teamName = namespaceFromService(request.getServiceName());
+		
+		for(RequestPayload entry : request.getPayload()) {
+			System.out.println("if "+entry.getTeamName()+" EQUALS"+ teamName+" --> "+entry.getTeamName().equalsIgnoreCase(teamName));
+			if (entry.getTeamName().equalsIgnoreCase(teamName)) {
+				System.out.println("Team Emails"+entry.getNameEmaiMap().values());
+				return (List<String> ) entry.getNameEmaiMap().values();
+			}
+		}
+		return null;
 	}
 
-	@GET
-	@Path("/info")
-	@Produces("application/json")
-	@ApiOperation("Returns the greeting in Spanish")
-	public String info() {
-
-		String info = "\n\n================================================"
-				+"\n     EMEA ARCHITECTS HATCKATHLON INFORMATION "
-				+"\n================================================"
-				+"\n\nAPI PAYLOAD"
-				+"\n-----------------------"
-				+"\n"+API_PAYLOAD
-				+"\n\nEXAMPLE : \n"
-				+"\n"+API_PAYLOAD_EXAMPLE
-				+"\n===========================================";
-
-		System.out.println(info);
-		return info;
-	}
 
 //	@POST  
 //	@Path("/test")
@@ -667,21 +598,6 @@ public class HackathlonAPIResource {
 			return inOrder(reindeersIt, nextReindeer);
 		}
 		return true;
-	}
-
-	private String getNextServiceRouteURL(String currentService) {
-		Iterator<String> routeIterator = serviceRoutes.iterator();
-		while (routeIterator.hasNext()) {
-			String svcURL = routeIterator.next();
-			if(currentService.equalsIgnoreCase(svcURL)) {
-				System.out.println("Match Found on SVC --> "+currentService);
-				svcURL = routeIterator.next();
-				System.out.println("RETURNED Next Service --> "+svcURL);
-				return svcURL;
-			}
-			System.out.println("Next Service --> "+svcURL);
-		}
-		return null;
 	}
 
 

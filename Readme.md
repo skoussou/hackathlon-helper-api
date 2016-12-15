@@ -4,7 +4,7 @@ helper-api microservice using Java EE (JAX-RS) on WildFly Swarm
 The detailed instructions to run *Red Hat Helloworld MSA* demo, can be found at the following repository: <https://github.com/redhat-helloworld-msa/helloworld-msa>
 
 
-Build and Deploy hola locally
+Build and Deploy hackathlon-helper-api locally
 -----------------------------
 
 1. Open a command prompt and navigate to the root directory of this microservice.
@@ -37,8 +37,8 @@ Alternative
 2. Go to OCP Project/Namespace where this will be exposed from
 3. Create new img		
 
-		oc new-app --name helper-api wildflyswarm-10-centos7~https://github.com/skoussou/hackathlon-helper-api
-
+		oc new-app --name helper-api wildflyswarm-10-centos7~https://github.com/skoussou/hackathlon-helper-api  (With submodule?)
+                
 4. Check progress with: 	
 
 		oc status & oc logs -f bc/helper-api
@@ -80,3 +80,8 @@ spec:
     weight: 100
   port:
     targetPort: 8080-tcp
+
+8. Environment Variables Required present
+* ENVIRONMENT {DEV/PROD} --> decided upon whether to simply validate the calling payload or contanct other MSAs and send email
+* EMAIL_SERVER_USERNAME
+* EMAIL_SERVER_PASSWORD
